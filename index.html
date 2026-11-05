@@ -2,696 +2,1235 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scratch Universe</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080d1c">
+  <meta name="description" content="Scratch Universe: descubra jogos incríveis criados pela comunidade Scratch.">
+  <title>Scratch Universe | Explore novos mundos</title>
 
-<style>
-* {
-  box-sizing: border-box;
-}
+  <style>
+    :root {
+      --bg: #080d1c;
+      --surface: #111a2e;
+      --surface-light: #17243d;
+      --border: #263955;
+      --text: #f5f8ff;
+      --muted: #94a5c1;
+      --cyan: #65d9ff;
+      --purple: #9a83ff;
+      --blue: #258dff;
+      --radius: 17px;
+    }
 
-body {
-  margin: 0;
-  background: #070b18;
-  color: white;
-  font-family: Arial, sans-serif;
-  overflow-x: hidden;
-}
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: -1;
-  background:
-    radial-gradient(circle at 15% 20%, #163b6444, transparent 30%),
-    radial-gradient(circle at 85% 60%, #532b7140, transparent 35%),
-    radial-gradient(circle at 50% 100%, #102e5540, transparent 40%);
-}
+    html {
+      scroll-behavior: smooth;
+    }
 
-.stars {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: -1;
-  background-image:
-    radial-gradient(2px 2px at 20px 30px, #fff, transparent),
-    radial-gradient(1px 1px at 90px 80px, #8adfff, transparent),
-    radial-gradient(2px 2px at 160px 150px, #fff, transparent),
-    radial-gradient(1px 1px at 220px 40px, #fff, transparent);
-  background-size: 270px 200px;
-  animation: stars 30s linear infinite;
-}
+    body {
+      min-height: 100vh;
+      overflow-x: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
 
-@keyframes stars {
-  from { transform: translateY(0); }
-  to { transform: translateY(-200px); }
-}
+    button, input, select {
+      font: inherit;
+    }
 
-header {
-  height: 76px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 7%;
-  border-bottom: 1px solid #ffffff12;
-  background: #080e20cc;
-  backdrop-filter: blur(12px);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
+    button {
+      cursor: pointer;
+    }
 
-.logo {
-  font-size: 21px;
-  font-weight: 900;
-  letter-spacing: 1px;
-  color: #73d8ff;
-}
+    a {
+      color: inherit;
+    }
 
-.logo span {
-  color: white;
-}
+    /* FUNDO ESPACIAL */
 
-nav {
-  display: flex;
-  gap: 25px;
-}
+    .background-glow {
+      position: fixed;
+      inset: 0;
+      z-index: -3;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse at 15% 15%, #164b7933, transparent 38%),
+        radial-gradient(ellipse at 85% 45%, #683b8c2b, transparent 40%),
+        radial-gradient(ellipse at 50% 100%, #145c7730, transparent 45%);
+    }
 
-nav a {
-  color: #aab8d1;
-  text-decoration: none;
-  font-size: 14px;
-}
+    .stars {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+      opacity: .65;
+      background-image:
+        radial-gradient(2px 2px at 20px 30px, white, transparent),
+        radial-gradient(1px 1px at 90px 80px, #8adfff, transparent),
+        radial-gradient(2px 2px at 160px 150px, white, transparent),
+        radial-gradient(1px 1px at 220px 40px, white, transparent),
+        radial-gradient(1px 1px at 260px 120px, #9b8aff, transparent);
+      background-size: 290px 210px;
+      animation: starMovement 45s linear infinite;
+    }
 
-nav a:hover {
-  color: #65d5ff;
-}
+    @keyframes starMovement {
+      from { transform: translateY(0); }
+      to { transform: translateY(-210px); }
+    }
 
-.hero {
-  text-align: center;
-  padding: 85px 20px 65px;
-}
+    /* CABEÇALHO */
 
-.tag {
-  display: inline-block;
-  border: 1px solid #3976a9;
-  background: #102b48;
-  color: #78d9ff;
-  padding: 9px 17px;
-  border-radius: 30px;
-  font-size: 12px;
-  letter-spacing: 2px;
-}
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 7%;
+      border-bottom: 1px solid #ffffff12;
+      background: #080e20e8;
+      backdrop-filter: blur(16px);
+    }
 
-.hero h1 {
-  font-size: clamp(40px, 7vw, 76px);
-  margin: 25px 0 15px;
-  font-weight: 900;
-  letter-spacing: -2px;
-}
+    .logo {
+      color: var(--cyan);
+      font-size: 21px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
 
-.hero h1 span {
-  background: linear-gradient(90deg, #67d9ff, #a38aff);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-}
+    .logo span {
+      color: white;
+    }
 
-.hero p {
-  color: #a3b2ca;
-  font-size: 17px;
-  line-height: 1.6;
-}
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 27px;
+    }
 
-.search {
-  max-width: 650px;
-  margin: 35px auto 0;
-  display: flex;
-  padding: 7px;
-  border: 1px solid #344b70;
-  background: #101a30;
-  border-radius: 15px;
-  box-shadow: 0 0 35px #208bff18;
-}
+    nav a {
+      color: #b1bfd5;
+      font-size: 14px;
+      text-decoration: none;
+      transition: color .2s;
+    }
 
-.search input {
-  flex: 1;
-  min-width: 0;
-  padding: 15px;
-  background: transparent;
-  color: white;
-  border: none;
-  outline: none;
-  font-size: 15px;
-}
+    nav a:hover {
+      color: var(--cyan);
+    }
 
-.search button {
-  border: none;
-  background: linear-gradient(120deg, #168bff, #7864ff);
-  color: white;
-  padding: 0 22px;
-  border-radius: 10px;
-  font-weight: bold;
-  cursor: pointer;
-}
+    /* APRESENTAÇÃO */
 
-.content {
-  max-width: 1200px;
-  margin: auto;
-  padding: 25px 25px 80px;
-}
+    .hero {
+      padding: 90px 20px 65px;
+      text-align: center;
+    }
 
-.section-title {
-  font-size: 25px;
-  margin-bottom: 8px;
-}
+    .hero-tag {
+      display: inline-block;
+      padding: 9px 17px;
+      border: 1px solid #3976a9;
+      border-radius: 30px;
+      background: #102b48;
+      color: var(--cyan);
+      font-size: 11px;
+      letter-spacing: 2px;
+    }
 
-.subtitle {
-  color: #8495b1;
-  font-size: 14px;
-  margin-bottom: 25px;
-}
+    .hero h1 {
+      margin: 25px 0 15px;
+      font-size: clamp(39px, 7vw, 76px);
+      font-weight: 900;
+      letter-spacing: -2px;
+    }
 
-.categories {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin: 25px 0 45px;
-}
+    .gradient-text {
+      background: linear-gradient(90deg, #67d9ff, #a38aff);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
 
-.category {
-  background: #111d33;
-  color: #b7c7df;
-  border: 1px solid #293c5b;
-  border-radius: 30px;
-  padding: 11px 18px;
-  cursor: pointer;
-}
+    .hero-description {
+      color: #a3b2ca;
+      font-size: 17px;
+      line-height: 1.7;
+    }
 
-.category:hover,
-.category.active {
-  background: #173d64;
-  border-color: #53caff;
-  color: white;
-}
+    /* PESQUISA */
 
-.games {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 22px;
-}
+    .search-area {
+      width: min(680px, 100%);
+      margin: 35px auto 0;
+    }
 
-.game-card {
-  overflow: hidden;
-  background: #10192c;
-  border: 1px solid #263650;
-  border-radius: 16px;
-  transition: .25s;
-}
+    .search-box {
+      display: flex;
+      padding: 7px;
+      border: 1px solid #344b70;
+      border-radius: 15px;
+      background: #101a30;
+      box-shadow: 0 0 40px #208bff18;
+      transition: border .2s, box-shadow .2s;
+    }
 
-.game-card:hover {
-  transform: translateY(-7px);
-  border-color: #62cfff;
-  box-shadow: 0 12px 35px #168bff20;
-}
+    .search-box:focus-within {
+      border-color: var(--cyan);
+      box-shadow: 0 0 35px #208bff30;
+    }
 
-.cover {
-  height: 155px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 65px;
-  position: relative;
-}
+    .search-box input {
+      flex: 1;
+      min-width: 0;
+      padding: 15px;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: white;
+      font-size: 15px;
+    }
 
-.space {
-  background: linear-gradient(135deg, #102f66, #563b91);
-}
+    .search-box input::placeholder {
+      color: #7486a4;
+    }
 
-.horror {
-  background: linear-gradient(135deg, #321b32, #8d3039);
-}
+    .search-button {
+      padding: 0 23px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(120deg, #168bff, #7864ff);
+      color: white;
+      font-weight: bold;
+      transition: filter .2s, transform .2s;
+    }
 
-.racing {
-  background: linear-gradient(135deg, #6a2a20, #bd7231);
-}
+    .search-button:hover {
+      filter: brightness(1.15);
+      transform: scale(1.02);
+    }
 
-.adventure {
-  background: linear-gradient(135deg, #14574d, #297b84);
-}
+    .search-hint {
+      margin-top: 12px;
+      color: #71839f;
+      font-size: 12px;
+    }
 
-.card-info {
-  padding: 18px;
-}
+    /* CONTEÚDO */
 
-.card-info h3 {
-  margin: 0 0 9px;
-  font-size: 18px;
-}
+    .content {
+      width: min(1250px, 100%);
+      margin: auto;
+      padding: 20px 25px 85px;
+    }
 
-.card-info p {
-  color: #8e9db6;
-  font-size: 13px;
-  line-height: 1.5;
-  min-height: 38px;
-}
+    .section-heading {
+      margin-bottom: 8px;
+      font-size: 25px;
+    }
 
-.game-tag {
-  font-size: 11px;
-  color: #76d9ff;
-  background: #16304a;
-  padding: 6px 10px;
-  border-radius: 20px;
-  display: inline-block;
-}
+    .section-description {
+      margin-bottom: 23px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
 
-.game-button {
-  width: 100%;
-  margin-top: 15px;
-  padding: 11px;
-  background: #1a2c49;
-  color: #9bb8dc;
-  border: 1px solid #344e72;
-  border-radius: 8px;
-  cursor: not-allowed;
-}
+    /* CATEGORIAS */
 
-.empty {
-  display: none;
-  text-align: center;
-  color: #a4b5d0;
-  padding: 45px 10px;
-}
+    .categories {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 11px;
+      margin: 25px 0 42px;
+    }
 
-footer {
-  text-align: center;
-  border-top: 1px solid #ffffff15;
-  padding: 30px;
-  color: #788ba8;
-  font-size: 13px;
-}
+    .category {
+      padding: 11px 17px;
+      border: 1px solid #293c5b;
+      border-radius: 30px;
+      background: #111d33;
+      color: #b7c7df;
+      transition: .2s;
+    }
 
-@media(max-width:650px) {
-  header {
-    padding: 0 18px;
-  }
+    .category:hover,
+    .category.active {
+      border-color: var(--cyan);
+      background: #173d64;
+      color: white;
+    }
 
-  nav {
-    gap: 12px;
-  }
+    /* RESULTADOS */
 
-  nav a {
-    font-size: 12px;
-  }
+    .results-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin: 35px 0 20px;
+    }
 
-  .hero {
-    padding-top: 60px;
-  }
+    .results-count {
+      color: var(--muted);
+      font-size: 13px;
+    }
 
-  .search button {
-    padding: 0 13px;
-    font-size: 12px;
-  }
-}
-</style>
+    .sort-select {
+      max-width: 190px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      outline: none;
+      background: var(--surface);
+      color: white;
+    }
+
+    .games {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
+      gap: 22px;
+    }
+
+    /* CARTÕES */
+
+    .game-card {
+      min-width: 0;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      transition: transform .25s, border-color .25s, box-shadow .25s;
+      animation: cardAppear .35s ease both;
+    }
+
+    @keyframes cardAppear {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .game-card:hover {
+      transform: translateY(-5px);
+      border-color: #62cfff;
+      box-shadow: 0 12px 35px #168bff20;
+    }
+
+    .game-image-container {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 4 / 3;
+      background: #17243b;
+    }
+
+    .game-image {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      transition: transform .4s;
+    }
+
+    .game-card:hover .game-image {
+      transform: scale(1.05);
+    }
+
+    .game-image-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #8297b6;
+      font-size: 40px;
+    }
+
+    .game-info {
+      padding: 17px;
+    }
+
+    .game-title {
+      margin-bottom: 9px;
+      overflow: hidden;
+      font-size: 17px;
+      line-height: 1.4;
+      text-overflow: ellipsis;
+    }
+
+    .game-author {
+      margin-bottom: 13px;
+      color: #9bacc7;
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .game-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 13px;
+      color: #a8b8d0;
+      font-size: 12px;
+    }
+
+    .game-link {
+      display: block;
+      margin-top: 16px;
+      padding: 11px;
+      border: 1px solid #345b86;
+      border-radius: 9px;
+      background: #173454;
+      color: #9cddff;
+      font-size: 12px;
+      font-weight: bold;
+      text-align: center;
+      text-decoration: none;
+      transition: .2s;
+    }
+
+    .game-link:hover {
+      border-color: var(--cyan);
+      background: #20517c;
+      color: white;
+    }
+
+    /* ESTADOS */
+
+    .state-box {
+      grid-column: 1 / -1;
+      padding: 55px 20px;
+      border: 1px dashed #304866;
+      border-radius: 15px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .state-icon {
+      margin-bottom: 13px;
+      font-size: 35px;
+    }
+
+    .state-box h3 {
+      margin-bottom: 9px;
+      color: white;
+      font-size: 19px;
+    }
+
+    .state-box p {
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .load-more-container {
+      display: none;
+      justify-content: center;
+      margin-top: 35px;
+    }
+
+    .load-more-button {
+      padding: 13px 25px;
+      border: 1px solid #426d9c;
+      border-radius: 10px;
+      background: #173454;
+      color: white;
+      font-weight: bold;
+    }
+
+    .load-more-button:hover {
+      background: #20517c;
+    }
+
+    .load-more-button:disabled {
+      cursor: wait;
+      opacity: .6;
+    }
+
+    /* RODAPÉ */
+
+    footer {
+      padding: 30px 20px;
+      border-top: 1px solid #ffffff15;
+      color: #788ba8;
+      font-size: 13px;
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    /* RESPONSIVIDADE */
+
+    @media (max-width: 650px) {
+      header {
+        min-height: 65px;
+        padding: 0 16px;
+      }
+
+      .logo {
+        font-size: 16px;
+      }
+
+      nav {
+        gap: 13px;
+      }
+
+      nav a {
+        font-size: 12px;
+      }
+
+      .hero {
+        padding: 65px 17px 45px;
+      }
+
+      .hero-description {
+        font-size: 14px;
+      }
+
+      .content {
+        padding: 20px 15px 60px;
+      }
+
+      .search-button {
+        padding: 0 14px;
+        font-size: 12px;
+      }
+
+      .games {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .game-info {
+        padding: 12px;
+      }
+
+      .game-title {
+        font-size: 14px;
+      }
+
+      .game-stats {
+        gap: 8px;
+        font-size: 10px;
+      }
+
+      .game-link {
+        padding: 10px 5px;
+        font-size: 10px;
+      }
+
+      .results-top {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .games {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="stars"></div>
+  <div class="background-glow"></div>
+  <div class="stars"></div>
 
-<header>
-  <div class="logo">🌌 SCRATCH <span>UNIVERSE</span></div>
-  <nav>
-    <a href="#inicio">Início</a>
-    <a href="#jogos">Explorar</a>
-  </nav>
-</header>
+  <header>
+    <a class="logo" href="#inicio">
+      🌌 SCRATCH <span>UNIVERSE</span>
+    </a>
 
-<section class="hero" id="inicio">
-  <div class="tag">✦ UM UNIVERSO DE POSSIBILIDADES ✦</div>
+    <nav>
+      <a href="#inicio">Início</a>
+      <a href="#explorar">Explorar jogos</a>
+    </nav>
+  </header>
 
-  <h1>DESCUBRA SEU <span>UNIVERSO</span></h1>
+  <section class="hero" id="inicio">
+    <div class="hero-tag">✦ UM UNIVERSO DE POSSIBILIDADES ✦</div>
 
-  <p>
-    Milhares de mundos. Infinitas aventuras.<br>
-    Seu próximo jogo começa aqui.
-  </p>
+    <h1>
+      DESCUBRA SEU <span class="gradient-text">UNIVERSO</span>
+    </h1>
 
-  <div class="search">
-    <input
-      id="searchInput"
-      type="text"
-      placeholder="Digite o nome ou ID de um jogo..."
-    >
-    <button onclick="searchGames()">EXPLORAR</button>
-  </div>
-</section>
+    <p class="hero-description">
+      Milhares de mundos. Infinitas aventuras.<br>
+      Encontre seu próximo jogo.
+    </p>
 
-<main class="content" id="jogos">
+    <div class="search-area">
+      <form class="search-box" id="searchForm">
+        <input
+          id="searchInput"
+          type="search"
+          placeholder="Pesquise um jogo ou digite seu ID..."
+          autocomplete="off"
+          aria-label="Pesquisar jogos"
+        >
+        <button class="search-button" type="submit">
+          EXPLORAR
+        </button>
+      </form>
 
-  <h2 class="section-title">Explore os universos</h2>
-  <p class="subtitle">Escolha seu estilo de aventura.</p>
+      <p class="search-hint">
+        Pesquise por nome, gênero ou ID de um projeto Scratch.
+      </p>
+    </div>
+  </section>
 
-  <div class="categories">
-    <button class="category active" onclick="filterGames('todos',this)">Todos</button>
-    <button class="category" onclick="filterGames('aventura',this)">⚔️ Aventura</button>
-    <button class="category" onclick="filterGames('terror',this)">👻 Terror</button>
-    <button class="category" onclick="filterGames('corrida',this)">🏎️ Corrida</button>
-    <button class="category" onclick="filterGames('espaco',this)">🚀 Espaço</button>
-  </div>
+  <main class="content" id="explorar">
 
-  <h2 class="section-title">Jogos em destaque</h2>
-  <p class="subtitle">Conheça alguns exemplos do que encontraremos por aqui.</p>
+    <h2 class="section-heading">Explore os jogos</h2>
 
-  <div class="games" id="games">
+    <p class="section-description">
+      Descubra projetos da comunidade Scratch e encontre sua próxima aventura.
+    </p>
 
-    <article class="game-card" data-category="espaco" data-name="aventura nas estrelas">
-      <div class="cover space">🚀</div>
-      <div class="card-info">
-        <h3>Aventura nas Estrelas</h3>
-        <p>Explore planetas e descubra os mistérios do universo.</p>
-        <span class="game-tag">ESPAÇO</span>
-        <button class="game-button" disabled>EM BREVE</button>
+    <div class="categories" id="categories">
+      <button class="category active" data-query="popular games">
+        🎮 Todos
+      </button>
+      <button class="category" data-query="platformer">
+        🏃 Plataforma
+      </button>
+      <button class="category" data-query="horror">
+        👻 Terror
+      </button>
+      <button class="category" data-query="racing">
+        🏎️ Corrida
+      </button>
+      <button class="category" data-query="adventure">
+        ⚔️ Aventura
+      </button>
+      <button class="category" data-query="arcade">
+        🕹️ Arcade
+      </button>
+      <button class="category" data-query="fighting game">
+        🥊 Luta
+      </button>
+    </div>
+
+    <div class="results-top">
+      <div>
+        <h2 class="section-heading" id="resultsTitle">
+          Jogos populares
+        </h2>
+        <p class="results-count" id="resultsCount">
+          Pesquise para descobrir novos jogos.
+        </p>
       </div>
-    </article>
 
-    <article class="game-card" data-category="terror" data-name="mansao sombria">
-      <div class="cover horror">👻</div>
-      <div class="card-info">
-        <h3>Mansão Sombria</h3>
-        <p>Uma casa abandonada esconde segredos assustadores.</p>
-        <span class="game-tag">TERROR</span>
-        <button class="game-button" disabled>EM BREVE</button>
+      <select class="sort-select" id="sortSelect" aria-label="Ordenar jogos">
+        <option value="popular">Mais populares</option>
+        <option value="views">Mais vistos</option>
+        <option value="recent">Mais recentes</option>
+      </select>
+    </div>
+
+    <section class="games" id="games" aria-live="polite">
+      <div class="state-box">
+        <div class="state-icon">🌌</div>
+        <h3>Seu próximo jogo está esperando</h3>
+        <p>
+          Pesquise um nome ou escolha uma categoria para começar a explorar.
+        </p>
       </div>
-    </article>
+    </section>
 
-    <article class="game-card" data-category="corrida" data-name="corrida extrema">
-      <div class="cover racing">🏎️</div>
-      <div class="card-info">
-        <h3>Corrida Extrema</h3>
-        <p>Velocidade, desafios e pistas incríveis.</p>
-        <span class="game-tag">CORRIDA</span>
-        <button class="game-button" disabled>EM BREVE</button>
-      </div>
-    </article>
+    <div class="load-more-container" id="loadMoreContainer">
+      <button class="load-more-button" id="loadMoreButton">
+        CARREGAR MAIS JOGOS
+      </button>
+    </div>
 
-    <article class="game-card" data-category="aventura" data-name="reino perdido">
-      <div class="cover adventure">⚔️</div>
-      <div class="card-info">
-        <h3>Reino Perdido</h3>
-        <p>Entre em um mundo fantástico cheio de aventuras.</p>
-        <span class="game-tag">AVENTURA</span>
-        <button class="game-button" disabled>EM BREVE</button>
-      </div>
-    </article>
+  </main>
 
-  </div>
+  <footer>
+    <strong>SCRATCH UNIVERSE © 2026</strong><br>
+    Uma plataforma independente para descobrir jogos da comunidade Scratch.<br>
+    Scratch é uma marca do Massachusetts Institute of Technology.
+  </footer>
 
-  <div class="empty" id="empty">
-    <h2>🌌 Nenhum universo encontrado</h2>
-    <p>Tente pesquisar outro nome.</p>
-  </div>
+  <script>
+    "use strict";
 
-</main>
+    /* ==========================================
+       CONFIGURAÇÕES
+    ========================================== */
 
-<footer>
-  SCRATCH UNIVERSE © 2026 — Criado para conectar mundos.
-</footer>
+    const CONFIG = {
+      api: "https://api.scratch.mit.edu",
+      limit: 40,
+      maxPages: 5,
+      requestTimeout: 12000
+    };
 
-<script>
-let currentCategory = "todos";
-let hasLiveResults = false;
+    const state = {
+      query: "",
+      mode: "popular",
+      offset: 0,
+      projects: [],
+      loading: false,
+      hasMore: false,
+      requestNumber: 0
+    };
 
-const SCRATCH_API = "https://api.scratch.mit.edu";
-const TURBOWARP_API = "https://trampoline.turbowarp.org/api";
+    const elements = {
+      form: document.getElementById("searchForm"),
+      input: document.getElementById("searchInput"),
+      games: document.getElementById("games"),
+      title: document.getElementById("resultsTitle"),
+      count: document.getElementById("resultsCount"),
+      categories: document.getElementById("categories"),
+      sort: document.getElementById("sortSelect"),
+      loadContainer: document.getElementById("loadMoreContainer"),
+      loadButton: document.getElementById("loadMoreButton")
+    };
 
-// Consulta uma API e tenta a alternativa caso a primeira falhe.
-async function fetchFromAPIs(urls) {
-  let lastError;
+    /* ==========================================
+       FUNÇÕES AUXILIARES
+    ========================================== */
 
-  for (const url of urls) {
-    try {
-      const response = await fetch(url);
+    function normalizeText(value) {
+      return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+    }
 
-      if (!response.ok) {
-        throw new Error("Erro HTTP: " + response.status);
+    function formatNumber(value) {
+      const number = Number(value) || 0;
+
+      return new Intl.NumberFormat("pt-BR", {
+        notation: number >= 10000 ? "compact" : "standard",
+        maximumFractionDigits: 1
+      }).format(number);
+    }
+
+    function showState(icon, title, description) {
+      elements.games.innerHTML = "";
+
+      const box = document.createElement("div");
+      box.className = "state-box";
+
+      const iconElement = document.createElement("div");
+      iconElement.className = "state-icon";
+      iconElement.textContent = icon;
+
+      const heading = document.createElement("h3");
+      heading.textContent = title;
+
+      const paragraph = document.createElement("p");
+      paragraph.textContent = description;
+
+      box.append(iconElement, heading, paragraph);
+      elements.games.appendChild(box);
+    }
+
+    function setLoading(isLoading) {
+      state.loading = isLoading;
+      elements.loadButton.disabled = isLoading;
+
+      elements.loadButton.textContent = isLoading
+        ? "CARREGANDO..."
+        : "CARREGAR MAIS JOGOS";
+    }
+
+    /* ==========================================
+       IDENTIFICAÇÃO DE JOGOS
+    ========================================== */
+
+    function isGameProject(project) {
+      const title = normalizeText(project.title);
+      const description = normalizeText(project.description);
+      const instructions = normalizeText(project.instructions);
+
+      const tags = Array.isArray(project.tags)
+        ? normalizeText(project.tags.join(" "))
+        : "";
+
+      const content = `${title} ${description} ${instructions} ${tags}`;
+
+      const gameWords = [
+        "game", "jogo", "games", "jogos",
+        "platformer", "platform", "plataforma",
+        "rpg", "adventure", "aventura",
+        "horror", "terror", "scary",
+        "racing", "corrida", "race",
+        "arcade", "multiplayer", "survival",
+        "sobrevivencia", "simulator", "simulador",
+        "fighting", "luta", "battle", "batalha",
+        "shooter", "space game", "dungeon",
+        "obby", "parkour", "maze", "labirinto",
+        "puzzle game", "tower defense", "tycoon",
+        "minecraft", "geometry dash", "sonic",
+        "mario", "pokemon", "fnaf", "five nights",
+        "flappy bird", "among us", "undertale"
+      ];
+
+      const nonGameWords = [
+        "animation only", "only animation",
+        "music video", "speedpaint",
+        "tutorial", "how to draw",
+        "my art", "desenho", "drawing",
+        "slideshow", "presentation",
+        "intro animation", " meme animation"
+      ];
+
+      let score = 0;
+
+      for (const word of gameWords) {
+        if (content.includes(word)) score++;
       }
 
-      return await response.json();
-    } catch (error) {
-      lastError = error;
+      for (const word of nonGameWords) {
+        if (content.includes(word)) score -= 2;
+      }
+
+      const controlWords = [
+        "arrow keys", "setas", "wasd",
+        "press space", "press enter",
+        "use the arrow", "use arrows",
+        "use the mouse", "use mouse",
+        "controles", "controls"
+      ];
+
+      for (const word of controlWords) {
+        if (instructions.includes(word)) score += 2;
+      }
+
+      return score > 0;
     }
-  }
 
-  throw lastError || new Error("Não foi possível acessar o Scratch.");
-}
+    function filterGames(projects, directId = false) {
+      if (directId) return projects;
 
-// Mantém compatibilidade com consultas antigas.
-async function getScratchData(path) {
-  return fetchFromAPIs([
-    SCRATCH_API + path,
-    TURBOWARP_API + path
-  ]);
-}
+      return projects.filter(isGameProject);
+    }
 
-// Cria um cartão de jogo com segurança.
-function createGameCard(project) {
-  const card = document.createElement("article");
-  card.className = "game-card";
+    /* ==========================================
+       COMUNICAÇÃO COM A API DO SCRATCH
+    ========================================== */
 
-  const title = project.title || "Jogo sem título";
-  const id = project.id;
-  const author = project.author?.username || "Criador desconhecido";
+    async function fetchScratch(url, requestId) {
+      const controller = new AbortController();
 
-  const loves = project.stats?.loves ?? 0;
-  const views = project.stats?.views ?? 0;
+      const timeout = setTimeout(
+        () => controller.abort(),
+        CONFIG.requestTimeout
+      );
 
-  const image = document.createElement("img");
-  image.src = `https://uploads.scratch.mit.edu/get_image/project/${id}_480x360.png`;
-  image.alt = title;
-  image.loading = "lazy";
-  image.style.width = "100%";
-  image.style.display = "block";
-  image.style.objectFit = "cover";
+      try {
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Accept": "application/json"
+          },
+          signal: controller.signal
+        });
 
-  image.onerror = function () {
-    this.onerror = null;
-    this.src = `https://cdn2.scratch.mit.edu/get_image/project/${id}_480x360.png`;
-  };
+        if (requestId !== state.requestNumber) {
+          throw new Error("Pesquisa substituída.");
+        }
 
-  const info = document.createElement("div");
-  info.className = "card-info";
+        if (!response.ok) {
+          throw new Error(`Scratch respondeu com erro ${response.status}.`);
+        }
 
-  const heading = document.createElement("h3");
-  heading.textContent = title;
+        return await response.json();
 
-  const creator = document.createElement("p");
-  creator.textContent = "Criado por: " + author;
+      } finally {
+        clearTimeout(timeout);
+      }
+    }
 
-  const stats = document.createElement("p");
-  stats.textContent = `❤️ ${loves}  |  👁️ ${views}`;
+    async function searchByName(query, mode, offset, requestId) {
+      const params = new URLSearchParams({
+        q: query,
+        limit: String(CONFIG.limit),
+        offset: String(offset),
+        mode: mode
+      });
 
-  const link = document.createElement("a");
-  link.href = `https://scratch.mit.edu/projects/${id}/`;
-  link.target = "_blank";
-  link.rel = "noopener noreferrer";
-  link.textContent = "JOGAR NO SCRATCH";
-  link.style.display = "inline-block";
-  link.style.marginTop = "10px";
+      const url = `${CONFIG.api}/search/projects?${params.toString()}`;
 
-  info.appendChild(heading);
-  info.appendChild(creator);
-  info.appendChild(stats);
-  info.appendChild(link);
+      const data = await fetchScratch(url, requestId);
 
-  card.appendChild(image);
-  card.appendChild(info);
+      if (!Array.isArray(data)) {
+        throw new Error("A resposta da pesquisa não é válida.");
+      }
 
-  return card;
-}
+      return data;
+    }
 
-// Exibe uma mensagem na área de resultados.
-function showMessage(title, description) {
-  const empty = document.getElementById("empty");
+    async function searchById(id, requestId) {
+      const url = `${CONFIG.api}/projects/${encodeURIComponent(id)}`;
 
-  if (!empty) return;
-
-  empty.style.display = "block";
-
-  const heading = empty.querySelector("h2");
-  const paragraph = empty.querySelector("p");
-
-  if (heading) heading.textContent = title;
-  if (paragraph) paragraph.textContent = description;
-}
-
-// Pesquisa projetos no Scratch.
-async function searchGames() {
-  const input = document.getElementById("searchInput");
-  const container = document.getElementById("games");
-  const empty = document.getElementById("empty");
-
-  if (!input || !container || !empty) {
-    console.error("Elementos da página não encontrados.");
-    return;
-  }
-
-  const query = input.value.trim();
-
-  if (!query) {
-    input.focus();
-    return;
-  }
-
-  hasLiveResults = true;
-  currentCategory = "todos";
-
-  document.querySelectorAll(".category").forEach(button => {
-    button.classList.remove("active");
-  });
-
-  const firstCategory = document.querySelector(".category");
-  if (firstCategory) firstCategory.classList.add("active");
-
-  container.innerHTML = "";
-  empty.style.display = "none";
-
-  const loading = document.createElement("p");
-  loading.textContent = "🌌 Explorando o universo Scratch...";
-  loading.style.color = "#78d9ff";
-  container.appendChild(loading);
-
-  try {
-    let projects;
-
-    // Pesquisa por ID.
-    if (/^\d+$/.test(query)) {
-      const id = encodeURIComponent(query);
-
-      const project = await fetchFromAPIs([
-        `${TURBOWARP_API}/projects/${id}`,
-        `${SCRATCH_API}/projects/${id}`
-      ]);
+      const project = await fetchScratch(url, requestId);
 
       if (!project || !project.id) {
         throw new Error("Projeto não encontrado.");
       }
 
-      projects = [project];
+      return [project];
+    }
 
-    } else {
-      // Pesquisa por nome.
-      const params = new URLSearchParams({
-        q: query,
-        limit: "20",
-        offset: "0",
-        mode: "popular"
+    /* ==========================================
+       CRIAÇÃO DOS CARTÕES
+    ========================================== */
+
+    function createGameCard(project) {
+      const card = document.createElement("article");
+      card.className = "game-card";
+
+      const imageContainer = document.createElement("div");
+      imageContainer.className = "game-image-container";
+
+      const image = document.createElement("img");
+      image.className = "game-image";
+      image.alt = project.title || "Capa do jogo";
+      image.loading = "lazy";
+      image.decoding = "async";
+
+      image.src =
+        `https://uploads.scratch.mit.edu/get_image/project/${project.id}_480x360.png`;
+
+      image.onerror = function () {
+        this.onerror = null;
+
+        const placeholder = document.createElement("div");
+        placeholder.className = "game-image-placeholder";
+        placeholder.textContent = "🎮";
+
+        imageContainer.replaceChildren(placeholder);
+      };
+
+      imageContainer.appendChild(image);
+
+      const info = document.createElement("div");
+      info.className = "game-info";
+
+      const title = document.createElement("h3");
+      title.className = "game-title";
+      title.textContent = project.title || "Jogo sem título";
+
+      const author = document.createElement("p");
+      author.className = "game-author";
+
+      author.textContent =
+        "Criado por: " +
+        (project.author?.username || "Criador desconhecido");
+
+      const stats = document.createElement("div");
+      stats.className = "game-stats";
+
+      const views = document.createElement("span");
+      views.textContent =
+        `👁 ${formatNumber(project.stats?.views)}`;
+
+      const loves = document.createElement("span");
+      loves.textContent =
+        `❤️ ${formatNumber(project.stats?.loves)}`;
+
+      const favorites = document.createElement("span");
+      favorites.textContent =
+        `⭐ ${formatNumber(project.stats?.favorites)}`;
+
+      stats.append(views, loves, favorites);
+
+      const link = document.createElement("a");
+      link.className = "game-link";
+      link.href = `https://scratch.mit.edu/projects/${project.id}/`;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = "ABRIR JOGO ↗";
+
+      info.append(title, author, stats, link);
+
+      card.append(imageContainer, info);
+
+      return card;
+    }
+
+    /* ==========================================
+       ORDENAÇÃO DOS RESULTADOS
+    ========================================== */
+
+    function sortProjects(projects) {
+      const sorted = [...projects];
+
+      if (state.mode === "views") {
+        sorted.sort((a, b) =>
+          (b.stats?.views || 0) - (a.stats?.views || 0)
+        );
+      }
+
+      if (state.mode === "popular") {
+        sorted.sort((a, b) =>
+          (b.stats?.loves || 0) - (a.stats?.loves || 0)
+        );
+      }
+
+      if (state.mode === "recent") {
+        sorted.sort((a, b) =>
+          new Date(b.history?.created || 0) -
+          new Date(a.history?.created || 0)
+        );
+      }
+
+      return sorted;
+    }
+
+    /* ==========================================
+       RENDERIZAÇÃO
+    ========================================== */
+
+    function renderProjects(append = false) {
+      if (!append) {
+        elements.games.innerHTML = "";
+      }
+
+      const projects = sortProjects(state.projects);
+
+      if (projects.length === 0) {
+        showState(
+          "🔎",
+          "Nenhum jogo encontrado",
+          "Tente outro nome ou escolha uma categoria diferente."
+        );
+        return;
+      }
+
+      projects.forEach(project => {
+        elements.games.appendChild(createGameCard(project));
       });
 
-      const searchPath = `/search/projects?${params.toString()}`;
+      elements.count.textContent =
+        `${projects.length} jogo(s) encontrado(s).`;
 
-      projects = await fetchFromAPIs([
-        SCRATCH_API + searchPath,
-        TURBOWARP_API + searchPath
-      ]);
+      elements.loadContainer.style.display =
+        state.hasMore ? "flex" : "none";
     }
 
-    container.innerHTML = "";
+    /* ==========================================
+       PESQUISA PRINCIPAL
+    ========================================== */
 
-    if (!Array.isArray(projects) || projects.length === 0) {
-      showMessage(
-        "Nenhum jogo encontrado",
-        "Tente outro nome ou confira se o ID está correto."
-      );
-      return;
+    async function searchGames(options = {}) {
+      const query = elements.input.value.trim();
+
+      if (!query) {
+        elements.input.focus();
+        return;
+      }
+
+      const append = options.append === true;
+      const requestId = append
+        ? state.requestNumber
+        : ++state.requestNumber;
+
+      if (state.loading) {
+        if (append) return;
+      }
+
+      if (!append) {
+        state.query = query;
+        state.offset = 0;
+        state.projects = [];
+        state.hasMore = false;
+
+        elements.title.textContent = `Resultados para "${query}"`;
+        elements.loadContainer.style.display = "none";
+
+        showState(
+          "🌌",
+          "Explorando o universo Scratch...",
+          "Estamos procurando jogos para você."
+        );
+      }
+
+      setLoading(true);
+
+      try {
+        let results;
+        const isNumericId = /^\d+$/.test(query);
+
+        if (isNumericId && !append) {
+          results = await searchById(query, requestId);
+
+          if (requestId !== state.requestNumber) return;
+
+          state.projects = results;
+          state.hasMore = false;
+
+        } else {
+          const mode = state.mode === "views"
+            ? "popular"
+            : state.mode;
+
+          results = await searchByName(
+            query,
+            mode,
+            state.offset,
+            requestId
+          );
+
+          if (requestId !== state.requestNumber) return;
+
+          const games = filterGames(results);
+
+          const existingIds = new Set(
+            state.projects.map(project => String(project.id))
+          );
+
+          const newGames = games.filter(project =>
+            !existingIds.has(String(project.id))
+          );
+
+          state.projects = append
+            ? [...state.projects, ...newGames]
+            : newGames;
+
+          state.offset += CONFIG.limit;
+
+          state.hasMore =
+            results.length === CONFIG.limit &&
+            state.offset < CONFIG.limit * CONFIG.maxPages;
+        }
+
+        renderProjects();
+
+      } catch (error) {
+        if (requestId !== state.requestNumber) return;
+
+        console.error("Scratch Universe:", error);
+
+        showState(
+          "⚠️",
+          "Não conseguimos carregar os jogos",
+          "Verifique sua conexão e tente novamente. O serviço do Scratch pode estar temporariamente indisponível."
+        );
+
+        elements.count.textContent = "Falha na pesquisa.";
+
+      } finally {
+        if (requestId === state.requestNumber) {
+          setLoading(false);
+        }
+      }
     }
 
-    const validProjects = projects.filter(project => {
-      return project && project.id;
+    /* ==========================================
+       EVENTOS DA PÁGINA
+    ========================================== */
+
+    elements.form.addEventListener("submit", event => {
+      event.preventDefault();
+      searchGames();
     });
 
-    if (validProjects.length === 0) {
-      showMessage(
-        "Nenhum jogo encontrado",
-        "Não encontramos projetos válidos nessa pesquisa."
-      );
-      return;
-    }
+    elements.categories.addEventListener("click", event => {
+      const button = event.target.closest(".category");
 
-    validProjects.forEach(project => {
-      container.appendChild(createGameCard(project));
+      if (!button) return;
+
+      document.querySelectorAll(".category").forEach(item => {
+        item.classList.remove("active");
+      });
+
+      button.classList.add("active");
+
+      const query = button.dataset.query;
+
+      elements.input.value = query;
+
+      searchGames();
     });
 
-  } catch (error) {
-    console.error("Erro na pesquisa:", error);
+    elements.sort.addEventListener("change", () => {
+      state.mode = elements.sort.value;
 
-    container.innerHTML = "";
-
-    showMessage(
-      "Não foi possível pesquisar",
-      "O Scratch pode estar temporariamente indisponível. Tente novamente."
-    );
-  }
-}
-
-// Compatibilidade com os filtros de categorias.
-function filterGames(category, button) {
-  currentCategory = category;
-
-  document.querySelectorAll(".category").forEach(item => {
-    item.classList.remove("active");
-  });
-
-  if (button) button.classList.add("active");
-
-  // Resultados da busca ao vivo não possuem categorias classificadas.
-  if (hasLiveResults) return;
-
-  updateGames();
-}
-
-function updateGames() {
-  const cards = document.querySelectorAll(".game-card");
-
-  cards.forEach(card => {
-    const category = card.dataset.category || "todos";
-
-    card.style.display =
-      currentCategory === "todos" ||
-      category === currentCategory
-        ? ""
-        : "none";
-  });
-}
-
-// Pesquisa também quando o usuário aperta Enter.
-document.addEventListener("DOMContentLoaded", function () {
-  const input = document.getElementById("searchInput");
-
-  if (input) {
-    input.addEventListener("keydown", function (event) {
-      if (event.key === "Enter") {
+      if (state.query) {
+        elements.input.value = state.query;
         searchGames();
       }
     });
-  }
-});
-</script>
 
+    elements.loadButton.addEventListener("click", async () => {
+      if (state.loading || !state.hasMore) return;
 
+      const requestId = state.requestNumber;
 
- 
- 
+      setLoading(true);
 
- 
-   
- 
+      try {
+        const mode = state.mode === "views"
+          ? "popular"
+          : state.mode;
 
+        const results = await searchByName(
+          state.query,
+          mode,
+          state.offset,
+          requestId
+        );
+
+        if (requestId !== state.requestNumber) return;
+
+        const games = filterGames(results);
+
+        const existingIds = new Set(
+          state.projects.map(project => String(project.id))
+        );
+
+        const newGames = games.filter(project =>
+          !existingIds.has(String(project.id))
+        );
+
+        state.projects = [...state.projects, ...newGames];
+        state.offset += CONFIG.limit;
+
+        state.hasMore =
+          results.length === CONFIG.limit &&
+          state.offset < CONFIG.limit * CONFIG.maxPages;
+
+        renderProjects();
+
+      } catch (error) {
+        console.error("Erro ao carregar mais:", error);
+        elements.count.textContent =
+          "Não foi possível carregar mais jogos.";
+
+      } finally {
+        if (requestId === state.requestNumber) {
+          setLoading(false);
+        }
+      }
+    });
+
+    /* ==========================================
+       INICIALIZAÇÃO
+    ========================================== */
+
+    console.log("Scratch Universe iniciado com sucesso.");
+  </script>
 
 </body>
 </html>
- 
+8
