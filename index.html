@@ -3,21 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Minha Loja Virtual</title>
+  <title>Gamer Hub & Voice Zone</title>
   <style>
     :root {
-      --bg: #0f172a;
-      --card-bg: #1e293b;
-      --primary: #10b981;
-      --primary-hover: #059669;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
+      --bg-dark: #0b0f19;
+      --card-bg: #151d30;
+      --accent-purple: #8b5cf6;
+      --accent-green: #10b981;
+      --accent-blue: #3b82f6;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
 
     body {
-      background-color: var(--bg);
+      background-color: var(--bg-dark);
       color: var(--text);
       min-height: 100vh;
       display: flex;
@@ -25,7 +26,8 @@
     }
 
     header {
-      background: var(--card-bg);
+      background: rgba(21, 29, 48, 0.8);
+      backdrop-filter: blur(10px);
       padding: 1rem 2rem;
       display: flex;
       justify-content: space-between;
@@ -33,107 +35,162 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      border-bottom: 1px solid #1f293d;
     }
 
     .logo {
       font-size: 1.5rem;
-      font-weight: bold;
-      color: var(--primary);
-    }
-
-    .cart-btn {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 0.6rem 1.2rem;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
+      font-weight: 800;
+      color: var(--accent-purple);
       display: flex;
       align-items: center;
-      gap: 8px;
-      transition: background 0.2s;
+      gap: 0.5rem;
     }
 
-    .cart-btn:hover { background: var(--primary-hover); }
+    .status-badge {
+      background: #064e3b;
+      color: var(--accent-green);
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent-green);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent-green);
+    }
 
     .container {
       max-width: 1200px;
       margin: 2rem auto;
       padding: 0 1rem;
-      flex: 1;
       width: 100%;
     }
 
-    .search-bar {
-      margin-bottom: 2rem;
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
       display: flex;
-      gap: 1rem;
+      align-items: center;
+      gap: 0.5rem;
     }
 
-    .search-bar input {
-      flex: 1;
-      padding: 0.8rem 1rem;
-      border-radius: 8px;
-      border: 1px solid #334155;
-      background: var(--card-bg);
-      color: var(--text);
-      font-size: 1rem;
-    }
-
-    .products-grid {
+    /* Links de Voz / Calls */
+    .calls-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .call-btn {
+      background: var(--card-bg);
+      border: 1px solid #243049;
+      border-radius: 12px;
+      padding: 1rem;
+      text-decoration: none;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .call-btn:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent-purple);
+      box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+    }
+
+    .call-icon { font-size: 1.8rem; }
+
+    /* Jogos Grid */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 1.5rem;
     }
 
-    .product-card {
+    .game-card {
       background: var(--card-bg);
-      border-radius: 12px;
-      padding: 1.2rem;
+      border: 1px solid #1f293d;
+      border-radius: 14px;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      border: 1px solid #334155;
-      transition: transform 0.2s;
+      transition: all 0.2s ease;
     }
 
-    .product-card:hover { transform: translateY(-4px); }
+    .game-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent-blue);
+    }
 
-    .product-image {
-      width: 100%;
-      height: 180px;
-      background: #334155;
-      border-radius: 8px;
+    .game-banner {
+      height: 120px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 3rem;
-      margin-bottom: 1rem;
+      font-size: 3.5rem;
     }
 
-    .product-title { font-size: 1.1rem; margin-bottom: 0.5rem; }
-    .product-price { font-size: 1.3rem; font-weight: bold; color: var(--primary); margin-bottom: 1rem; }
+    .game-info {
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
 
-    .btn-add {
-      background: #334155;
-      color: var(--text);
+    .game-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+
+    .game-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      flex: 1;
+    }
+
+    .game-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn-play {
+      flex: 1;
+      background: var(--accent-purple);
+      color: white;
       border: none;
       padding: 0.6rem;
-      border-radius: 6px;
-      font-weight: bold;
+      border-radius: 8px;
+      font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s;
+      text-align: center;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: background 0.2s;
     }
 
-    .btn-add:hover { background: var(--primary); }
+    .btn-play:hover { background: #7c3aed; }
 
-    /* Modal do Carrinho */
+    /* Modal do Jogo */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.7);
+      background: rgba(0,0,0,0.85);
       display: none;
       justify-content: center;
       align-items: center;
@@ -142,170 +199,145 @@
 
     .modal-overlay.active { display: flex; }
 
-    .modal {
+    .modal-content {
       background: var(--card-bg);
       width: 90%;
-      max-width: 500px;
-      border-radius: 12px;
-      padding: 1.5rem;
-      max-height: 80vh;
+      max-width: 900px;
+      height: 80vh;
+      border-radius: 14px;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
     }
 
     .modal-header {
+      padding: 1rem;
+      background: #0f172a;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1rem;
     }
 
-    .cart-items {
-      flex: 1;
-      overflow-y: auto;
-      margin-bottom: 1rem;
-    }
-
-    .cart-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.8rem 0;
-      border-bottom: 1px solid #334155;
-    }
-
-    .cart-total {
-      font-size: 1.2rem;
-      font-weight: bold;
-      text-align: right;
-      margin-bottom: 1rem;
-    }
-
-    .btn-checkout {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 0.8rem;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
+    .modal-iframe {
       width: 100%;
+      height: 100%;
+      border: none;
     }
   </style>
 </head>
 <body>
 
   <header>
-    <div class="logo">🛒 ShopDev</div>
-    <button class="cart-btn" onclick="toggleCart()">
-      🛒 Carrinho (<span id="cart-count">0</span>)
-    </button>
+    <div class="logo">🎮 GamerZone Hub</div>
+    <div class="status-badge">
+      <span class="status-dot"></span> Online & Pronto para Jogar
+    </div>
   </header>
 
   <div class="container">
-    <div class="search-bar">
-      <input type="text" id="searchInput" placeholder="Buscar produtos..." onkeyup="filterProducts()">
+    
+    <!-- Seção de Voz e Calls -->
+    <h2 class="section-title">📞 Salas de Voz & Chamadas</h2>
+    <div class="calls-grid">
+      <a href="https://discord.com/app" target="_blank" class="call-btn">
+        <span class="call-icon">💬</span>
+        <div>
+          <div>Discord</div>
+          <small style="color: var(--text-muted)">Servidores e Calls</small>
+        </div>
+      </a>
+      <a href="https://web.whatsapp.com" target="_blank" class="call-btn">
+        <span class="call-icon">📱</span>
+        <div>
+          <div>WhatsApp Web</div>
+          <small style="color: var(--text-muted)">Chamadas de Grupo</small>
+        </div>
+      </a>
+      <a href="https://meet.google.com" target="_blank" class="call-btn">
+        <span class="call-icon">📹</span>
+        <div>
+          <div>Google Meet</div>
+          <small style="color: var(--text-muted)">Sala rápida de vídeo</small>
+        </div>
+      </a>
     </div>
 
-    <div class="products-grid" id="productsGrid"></div>
+    <!-- Seção de Jogos Online -->
+    <h2 class="section-title">🕹️ Jogos Multiplayer & Arcade</h2>
+    <div class="games-grid">
+
+      <!-- Jogo 1 (Gartic / Desenho) -->
+      <div class="game-card">
+        <div class="game-banner" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">✏️</div>
+        <div class="game-info">
+          <div class="game-title">Gartic</div>
+          <div class="game-desc">Jogo de adivinhar desenhos multiplayer para jogar com a galera.</div>
+          <div class="game-actions">
+            <a href="https://gartic.com.br" target="_blank" class="btn-play">Abrir Sala</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Jogo 2 (Skribbl.io) -->
+      <div class="game-card">
+        <div class="game-banner" style="background: linear-gradient(135deg, #10b981, #3b82f6);">🎨</div>
+        <div class="game-info">
+          <div class="game-title">Skribbl.io</div>
+          <div class="game-desc">Crie salas privadas rápidas para desenhar e adivinhar em grupo.</div>
+          <div class="game-actions">
+            <a href="https://skribbl.io" target="_blank" class="btn-play">Jogar Junto</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Jogo 3 (Chess.com) -->
+      <div class="game-card">
+        <div class="game-banner" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">♟️</div>
+        <div class="game-info">
+          <div class="game-title">Xadrez Online</div>
+          <div class="game-desc">Desafie seus amigos para partidas rápidas de xadrez online.</div>
+          <div class="game-actions">
+            <a href="https://www.chess.com" target="_blank" class="btn-play">Desafiar</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Jogo 4 (2048 - Jogue Direto na Página) -->
+      <div class="game-card">
+        <div class="game-banner" style="background: linear-gradient(135deg, #ec4899, #8b5cf6);">🧩</div>
+        <div class="game-info">
+          <div class="game-title">2048 Puzzle</div>
+          <div class="game-desc">Jogo de raciocínio direto na página enquanto espera no lobby.</div>
+          <div class="game-actions">
+            <button class="btn-play" onclick="openGame('https://play2048.co/')">Jogar Agora</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
 
-  <!-- Modal do Carrinho -->
-  <div class="modal-overlay" id="cartModal">
-    <div class="modal">
+  <!-- Modal de Jogo Embutido -->
+  <div class="modal-overlay" id="gameModal">
+    <div class="modal-content">
       <div class="modal-header">
-        <h2>Seu Carrinho</h2>
-        <button onclick="toggleCart()" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;">✕</button>
+        <span>🎮 Jogando no Hub</span>
+        <button onclick="closeGame()" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;">✕</button>
       </div>
-      <div class="cart-items" id="cartItems"></div>
-      <div class="cart-total">Total: R$ <span id="cartTotal">0.00</span></div>
-      <button class="btn-checkout" onclick="checkout()">Finalizar Pedido via WhatsApp</button>
+      <iframe class="modal-iframe" id="gameFrame" src=""></iframe>
     </div>
   </div>
 
   <script>
-    const products = [
-      { id: 1, name: 'Fone de Ouvido Bluetooth', price: 189.90, icon: '🎧' },
-      { id: 2, name: 'Smartwatch Esportivo', price: 299.00, icon: '⌚' },
-      { id: 3, name: 'Teclado Mecânico RGB', price: 349.50, icon: '⌨️' },
-      { id: 4, name: 'Mouse Sem Fio Ergológico', price: 129.90, icon: '🖱️' },
-      { id: 5, name: 'Mochila Impermeável', price: 159.00, icon: '🎒' },
-      { id: 6, name: 'Caixa de Som Portátil', price: 210.00, icon: '🔊' },
-    ];
-
-    let cart = JSON.parse(localStorage.getItem('shop_cart')) || [];
-
-    function renderProducts(itemsToRender = products) {
-      const grid = document.getElementById('productsGrid');
-      grid.innerHTML = itemsToRender.map(p => `
-        <div class="product-card">
-          <div class="product-image">${p.icon}</div>
-          <div class="product-title">${p.name}</div>
-          <div class="product-price">R$ ${p.price.toFixed(2)}</div>
-          <button class="btn-add" onclick="addToCart(${p.id})">Adicionar ao Carrinho</button>
-        </div>
-      `).join('');
+    function openGame(url) {
+      document.getElementById('gameFrame').src = url;
+      document.getElementById('gameModal').classList.add('active');
     }
 
-    function filterProducts() {
-      const term = document.getElementById('searchInput').value.toLowerCase();
-      const filtered = products.filter(p => p.name.toLowerCase().includes(term));
-      renderProducts(filtered);
+    function closeGame() {
+      document.getElementById('gameModal').classList.remove('active');
+      document.getElementById('gameFrame').src = '';
     }
-
-    function addToCart(id) {
-      const item = products.find(p => p.id === id);
-      cart.push(item);
-      updateCart();
-    }
-
-    function removeFromCart(index) {
-      cart.splice(index, 1);
-      updateCart();
-    }
-
-    function updateCart() {
-      localStorage.setItem('shop_cart', JSON.stringify(cart));
-      document.getElementById('cart-count').textContent = cart.length;
-      
-      const cartItems = document.getElementById('cartItems');
-      cartItems.innerHTML = cart.map((item, idx) => `
-        <div class="cart-item">
-          <div>
-            <div><strong>${item.name}</strong></div>
-            <div style="color: var(--text-muted)">R$ ${item.price.toFixed(2)}</div>
-          </div>
-          <button onclick="removeFromCart(${idx})" style="background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Remover</button>
-        </div>
-      `).join('');
-
-      const total = cart.reduce((acc, item) => acc + item.price, 0);
-      document.getElementById('cartTotal').textContent = total.toFixed(2);
-    }
-
-    function toggleCart() {
-      document.getElementById('cartModal').classList.toggle('active');
-    }
-
-    function checkout() {
-      if (cart.length === 0) {
-        alert('Seu carrinho está vazio!');
-        return;
-      }
-      
-      const itemsList = cart.map(i => `- ${i.name} (R$ ${i.price.toFixed(2)})`).join('\n');
-      const total = cart.reduce((acc, item) => acc + item.price, 0);
-      const message = `Olá! Gostaria de finalizar meu pedido:\n\n${itemsList}\n\n*Total: R$ ${total.toFixed(2)}*`;
-      
-      // Abre direto com a mensagem pronta no WhatsApp
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-      window.open(whatsappUrl, '_blank');
-    }
-
-    // Inicialização
-    renderProducts();
-    updateCart();
   </script>
 </body>
 </html>
