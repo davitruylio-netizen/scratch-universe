@@ -31,7 +31,7 @@
 
     header {
       background: linear-gradient(135deg, #4e54c8, #8f94fb);
-      padding: 2rem 1rem;
+      padding: 2.5rem 1rem;
       text-align: center;
       box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
@@ -47,19 +47,37 @@
       margin-bottom: 1.5rem;
     }
 
-    .search-container {
-      max-width: 500px;
+    .search-box {
+      max-width: 550px;
       margin: 0 auto;
+      display: flex;
+      gap: 10px;
     }
 
-    .search-container input {
-      width: 100%;
+    .search-box input {
+      flex: 1;
       padding: 0.8rem 1.2rem;
       border-radius: 25px;
       border: none;
       font-size: 1rem;
       outline: none;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .search-box button {
+      background-color: #16192b;
+      color: white;
+      border: 2px solid #8f94fb;
+      padding: 0.8rem 1.5rem;
+      border-radius: 25px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .search-box button:hover {
+      background-color: var(--accent-hover);
+      color: #0b0d17;
     }
 
     main {
@@ -70,9 +88,17 @@
       width: 100%;
     }
 
+    .section-title {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid var(--accent-color);
+      display: inline-block;
+      padding-bottom: 5px;
+    }
+
     .games-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
       gap: 1.5rem;
     }
 
@@ -96,6 +122,7 @@
       width: 100%;
       height: 180px;
       object-fit: cover;
+      background-color: #000;
     }
 
     .game-info {
@@ -106,14 +133,16 @@
     }
 
     .game-info h3 {
-      font-size: 1.2rem;
-      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+      margin-bottom: 0.4rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .game-info p {
       color: var(--text-dim);
-      font-size: 0.9rem;
-      flex-grow: 1;
+      font-size: 0.85rem;
       margin-bottom: 1rem;
     }
 
@@ -127,13 +156,22 @@
       cursor: pointer;
       text-align: center;
       transition: background 0.2s;
+      margin-top: auto;
     }
 
     .btn-play:hover {
       background-color: var(--accent-hover);
     }
 
-    /* Modal (Player de jogo) */
+    .status-msg {
+      grid-column: 1 / -1;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 1.1rem;
+      padding: 3rem 0;
+    }
+
+    /* Modal Player */
     .modal {
       display: none;
       position: fixed;
@@ -141,7 +179,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.85);
+      background-color: rgba(0, 0, 0, 0.9);
       z-index: 1000;
       justify-content: center;
       align-items: center;
@@ -177,7 +215,7 @@
     .iframe-container {
       width: 100%;
       height: 0;
-      padding-bottom: 78%; /* Proporção aproximada do player do Scratch */
+      padding-bottom: 78%;
       position: relative;
       margin-top: 1rem;
     }
@@ -204,23 +242,24 @@
 
   <header>
     <h1>Universo Scratch 🚀</h1>
-    <p>Explore e jogue projetos incríveis criados na comunidade</p>
-    <div class="search-container">
-      <input type="text" id="searchInput" placeholder="Pesquisar jogo pelo nome..." onkeyup="filterGames()">
-    </div>
+    <p>Pesquise e jogue qualquer projeto da comunidade do Scratch</p>
+    <form class="search-box" onsubmit="handleSearch(event)">
+      <input type="text" id="searchInput" placeholder="Digite o nome de um jogo (ex: Sonic, Minecraft, Mario)..." required>
+      <button type="submit">Pesquisar</button>
+    </form>
   </header>
 
   <main>
+    <h2 class="section-title" id="sectionTitle">Jogos em Destaque</h2>
     <div class="games-grid" id="gamesGrid">
-      <!-- Os jogos serão gerados via JavaScript -->
+      <div class="status-msg">Carregando o multiverso...</div>
     </div>
   </main>
 
-  <!-- Modal para Jogar -->
   <div class="modal" id="gameModal">
     <div class="modal-content">
       <span class="close-btn" onclick="closeGame()">&times;</span>
-      <h2 id="modalTitle">Nome do Jogo</h2>
+      <h2 id="modalTitle">Carregando...</h2>
       <div class="iframe-container">
         <iframe id="scratchPlayer" src="" frameborder="0" allowtransparency="true" allowfullscreen="true"></iframe>
       </div>
@@ -228,101 +267,92 @@
   </div>
 
   <footer>
-    <p>Multiverso Scratch &copy; 2026 - Conectando Criadores</p>
+    <p>Multiverso Scratch &copy; 2026 - Conectado à API oficial do Scratch</p>
   </footer>
 
   <script>
-    // LISTA DE JOGOS
-    // Para adicionar mais jogos, basta pegar o ID na URL do Scratch (ex: scratch.mit.edu/projects/10128407/)
-    const games = [
-      {
-        id: "10128407",
-        title: "Paper Minecraft",
-        description: "Uma versão incrível 2D de Minecraft criada totalmente no Scratch.",
-        image: "https://uploads.scratch.mit.edu/projects/thumbnails/10128407.png"
-      },
-      {
-        id: "60917032",
-        title: "Geometry Dash",
-        description: "Desafie seus reflexos nesta recriação do clássico jogo de ritmo.",
-        image: "https://uploads.scratch.mit.edu/projects/thumbnails/60917032.png"
-      },
-      {
-        id: "276660763",
-        title: "Appel",
-        description: "Um dos melhores jogos de plataforma com física fluida do Scratch.",
-        image: "https://uploads.scratch.mit.edu/projects/thumbnails/276660763.png"
-      },
-      {
-        id: "13854124",
-        title: "Flappy Bird",
-        description: "Voe entre os canos e tente fazer a maior pontuação possível.",
-        image: "https://uploads.scratch.mit.edu/projects/thumbnails/13854124.png"
-      }
-    ];
-
     const gamesGrid = document.getElementById('gamesGrid');
     const modal = document.getElementById('gameModal');
     const scratchPlayer = document.getElementById('scratchPlayer');
     const modalTitle = document.getElementById('modalTitle');
+    const sectionTitle = document.getElementById('sectionTitle');
 
-    // Carregar os jogos na página
-    function renderGames(gameList) {
+    // Ao carregar a página, busca projetos em destaque via proxy CORS
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchScratchGames('games');
+    });
+
+    function handleSearch(event) {
+      event.preventDefault();
+      const query = document.getElementById('searchInput').value.trim();
+      if (query) {
+        sectionTitle.innerText = `Resultados para: "${query}"`;
+        fetchScratchGames(query);
+      }
+    }
+
+    async function fetchScratchGames(query) {
+      gamesGrid.innerHTML = '<div class="status-msg">Buscando jogos no Universo Scratch...</div>';
+
+      // Usando o serviço corsproxy.io para contornar limitações de CORS no navegador
+      const apiUrl = `https://corsproxy.io/?https://api.scratch.mit.edu/search/projects?q=${encodeURIComponent(query)}&limit=24&mode=popular`;
+
+      try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) throw new Error('Falha ao conectar com a API');
+        
+        const data = await response.json();
+        renderGames(data);
+      } catch (error) {
+        console.error(error);
+        gamesGrid.innerHTML = '<div class="status-msg">Erro ao carregar jogos. Tente pesquisar novamente.</div>';
+      }
+    }
+
+    function renderGames(projects) {
       gamesGrid.innerHTML = '';
-      if(gameList.length === 0) {
-        gamesGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-dim);">Nenhum jogo encontrado.</p>';
+
+      if (!projects || projects.length === 0) {
+        gamesGrid.innerHTML = '<div class="status-msg">Nenhum jogo encontrado com esse termo.</div>';
         return;
       }
 
-      gameList.forEach(game => {
+      projects.forEach(project => {
         const card = document.createElement('div');
         card.className = 'game-card';
-        card.onclick = () => openGame(game.id, game.title);
+        card.onclick = () => openGame(project.id, project.title);
+
+        const thumbnail = project.image || `https://uploads.scratch.mit.edu/projects/thumbnails/${project.id}.png`;
+        const author = project.author ? project.author.username : 'Criador do Scratch';
+
         card.innerHTML = `
-          <img src="${game.image}" alt="${game.title}" onerror="this.src='https://scratch.mit.edu/images/scratch-og.png'">
+          <img src="${thumbnail}" alt="${project.title}" onerror="this.src='https://scratch.mit.edu/images/scratch-og.png'">
           <div class="game-info">
-            <h3>${game.title}</h3>
-            <p>${game.description}</p>
-            <button class="btn-play">Jogar Agora</button>
+            <h3 title="${project.title}">${project.title}</h3>
+            <p>Por: <strong>${author}</strong></p>
+            <button class="btn-play">Jogar</button>
           </div>
         `;
         gamesGrid.appendChild(card);
       });
     }
 
-    // Filtrar jogos pela pesquisa
-    function filterGames() {
-      const query = document.getElementById('searchInput').value.toLowerCase();
-      const filtered = games.filter(game => 
-        game.title.toLowerCase().includes(query) || 
-        game.description.toLowerCase().includes(query)
-      );
-      renderGames(filtered);
-    }
-
-    // Abrir o Modal com o Jogo embutido
     function openGame(id, title) {
       modalTitle.innerText = title;
-      // Usando o player oficial embed do Scratch
       scratchPlayer.src = `https://scratch.mit.edu/projects/${id}/embed`;
       modal.style.display = 'flex';
     }
 
-    // Fechar o Modal
     function closeGame() {
       modal.style.display = 'none';
-      scratchPlayer.src = ''; // Interrompe o áudio/execução do jogo ao fechar
+      scratchPlayer.src = '';
     }
 
-    // Fechar ao clicar fora do conteúdo
     window.onclick = function(event) {
       if (event.target === modal) {
         closeGame();
       }
     };
-
-    // Inicializa a renderização
-    renderGames(games);
   </script>
 </body>
 </html>
