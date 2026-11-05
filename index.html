@@ -1,322 +1,224 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GamerZone - Hub Social & Multiplayer</title>
-  <!-- Biblioteca PeerJS para IDs e Conexão de Amigos em Tempo Real -->
-  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-  <style>
-    :root {
-      --bg-dark: #0b0f19;
-      --card-bg: #151d30;
-      --accent-purple: #8b5cf6;
-      --accent-green: #10b981;
-      --accent-blue: #3b82f6;
-      --text: #f3f4f6;
-      --text-muted: #9ca3af;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-
-    body {
-      background-color: var(--bg-dark);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    header {
-      background: rgba(21, 29, 48, 0.9);
-      backdrop-filter: blur(10px);
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      border-bottom: 1px solid #1f293d;
-    }
-
-    .logo {
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: var(--accent-purple);
-    }
-
-    .user-profile {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      background: #0f172a;
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
-      border: 1px solid #334155;
-    }
-
-    .my-id-badge {
-      font-weight: bold;
-      color: var(--accent-green);
-      font-family: monospace;
-      font-size: 1rem;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-      width: 100%;
-      display: grid;
-      grid-template-columns: 1fr 300px;
-      gap: 2rem;
-    }
-
-    .section-title {
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-    }
-
-    /* Painel de Amigos (Sidebar) */
-    .sidebar {
-      background: var(--card-bg);
-      border-radius: 14px;
-      padding: 1.2rem;
-      border: 1px solid #1f293d;
-      height: fit-content;
-    }
-
-    .add-friend-box {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .add-friend-box input {
-      flex: 1;
-      padding: 0.6rem;
-      border-radius: 8px;
-      border: 1px solid #334155;
-      background: #0f172a;
-      color: var(--text);
-      font-size: 0.9rem;
-    }
-
-    .btn-action {
-      background: var(--accent-purple);
-      color: white;
-      border: none;
-      padding: 0.6rem 1rem;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .friends-list { list-style: none; }
-
-    .friend-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.8rem 0;
-      border-bottom: 1px solid #1f293d;
-    }
-
-    .friend-status {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.85rem;
-    }
-
-    .dot-online { width: 8px; height: 8px; background: var(--accent-green); border-radius: 50%; }
-
-    /* Grid de Jogos */
-    .games-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .game-card {
-      background: var(--card-bg);
-      border: 1px solid #1f293d;
-      border-radius: 14px;
-      padding: 1.2rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    .game-icon { font-size: 3rem; text-align: center; margin-bottom: 0.5rem; }
-    .game-title { font-weight: bold; font-size: 1.1rem; margin-bottom: 0.4rem; }
-    .game-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; }
-
-    /* Notificação de Convite */
-    .invite-alert {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: var(--accent-purple);
-      color: white;
-      padding: 1rem 1.5rem;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-      display: none;
-      z-index: 2000;
-    }
-
-    @media (max-width: 768px) {
-      .container { grid-template-columns: 1fr; }
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crie Jogos em Blocos</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Carregando o Google Blockly -->
+  <script src="https://unpkg.com/blockly/blockly.min.js"></script>
 </head>
 <body>
-
   <header>
-    <div class="logo">🎮 GamerZone Social</div>
-    <div class="user-profile">
-      <span>Seu ID Gamer:</span>
-      <span class="my-id-badge" id="my-id">Gerando ID...</span>
-    </div>
+    <h1>🎮 Studio Block Game</h1>
+    <button id="runBtn">▶ Rodar Jogo</button>
   </header>
 
-  <div class="container">
-    
-    <!-- ÁREA PRINCIPAL: JOGOS MULTIPLAYER -->
-    <main>
-      <h2 class="section-title">🕹️ Escolha um Jogo para Jogar com Amigos</h2>
-      
-      <div class="games-grid">
-        <!-- Jogo 1: Gartic -->
-        <div class="game-card">
-          <div class="game-icon">✏️</div>
-          <div class="game-title">Gartic.io</div>
-          <div class="game-desc">Desenhe e adivinhe em salas privadas com seus amigos conectados.</div>
-          <button class="btn-action" onclick="inviteFriendToGame('Gartic', 'https://gartic.io')">Jogar Junto</button>
-        </div>
+  <main class="container">
+    <!-- Área onde o Blockly renderiza os blocos -->
+    <div id="blocklyDiv"></div>
 
-        <!-- Jogo 2: Ludo / Board -->
-        <div class="game-card">
-          <div class="game-icon">🎲</div>
-          <div class="game-title">Ludo King / Board</div>
-          <div class="game-desc">Partidas clássicas de tabuleiro multiplayer online.</div>
-          <button class="btn-action" onclick="inviteFriendToGame('Ludo', 'https://ludo.com')">Jogar Junto</button>
-        </div>
+    <!-- Tela onde o jogo é desenhado -->
+    <div class="game-area">
+      <h2>Execução do Jogo</h2>
+      <canvas id="gameCanvas" width="400" height="400"></canvas>
+    </div>
+  </main>
 
-        <!-- Jogo 3: Xadrez -->
-        <div class="game-card">
-          <div class="game-icon">♟️</div>
-          <div class="game-title">Xadrez 1v1</div>
-          <div class="game-desc">Crie um duelo direto de inteligência contra seu amigo.</div>
-          <button class="btn-action" onclick="inviteFriendToGame('Xadrez', 'https://lichess.org')">Desafiar Amigo</button>
-        </div>
-      </div>
-    </main>
+  <!-- Caixa de Ferramentas (Blocos Disponíveis) -->
+  <xml id="toolbox" style="display: none">
+    <category name="Eventos" colour="#FFBF00">
+      <block type="when_start"></block>
+    </category>
+    <category name="Movimento" colour="#4C97FF">
+      <block type="move_player"></block>
+    </category>
+    <category name="Aparência" colour="#9966FF">
+      <block type="set_color"></block>
+    </category>
+    <category name="Controle" colour="#FFAB19">
+      <block type="controls_repeat_ext">
+        <value name="TIMES">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
+  </xml>
 
-    <!-- SIDEBAR: SISTEMA DE AMIGOS -->
-    <aside class="sidebar">
-      <h2 class="section-title">👥 Adicionar Amigo</h2>
-      
-      <div class="add-friend-box">
-        <input type="text" id="friendIdInput" placeholder="Cole o ID do amigo...">
-        <button class="btn-action" onclick="addFriend()">Conectar</button>
-      </div>
-
-      <h2 class="section-title">Lista de Amigos</h2>
-      <ul class="friends-list" id="friendsList">
-        <li style="color: var(--text-muted); font-size: 0.85rem;">Nenhum amigo conectado ainda.</li>
-      </ul>
-    </aside>
-
-  </div>
-
-  <!-- ALERTA DE CONVITE RECEBIDO -->
-  <div class="invite-alert" id="inviteAlert">
-    <div id="inviteText">Um amigo te chamou para jogar!</div>
-    <button class="btn-action" style="margin-top:8px; background:white; color:black;" onclick="acceptInvite()">Aceitar e Entrar</button>
-  </div>
-
-  <script>
-    // 1. Inicializa o PeerJS gerando um ID aleatório único para o usuário
-    const randomId = 'Gamer-' + Math.floor(1000 + Math.random() * 9000);
-    const peer = new Peer(randomId);
-
-    let activeConnection = null;
-    let pendingGameUrl = '';
-
-    // Exibe o ID na tela assim que o servidor conecta
-    peer.on('open', (id) => {
-      document.getElementById('my-id').textContent = id;
-    });
-
-    // 2. Receber solicitação/mensagem de um amigo
-    peer.on('connection', (conn) => {
-      activeConnection = conn;
-      setupConnectionHandlers(conn);
-    });
-
-    // 3. Conectar ao ID digitado pelo usuário
-    function addFriend() {
-      const friendId = document.getElementById('friendIdInput').value.trim();
-      if (!friendId) return alert('Por favor, digite o ID do seu amigo!');
-      
-      activeConnection = peer.connect(friendId);
-      setupConnectionHandlers(activeConnection);
-    }
-
-    function setupConnectionHandlers(conn) {
-      conn.on('open', () => {
-        // Atualiza a lista de amigos na tela
-        const list = document.getElementById('friendsList');
-        list.innerHTML = `
-          <li class="friend-item">
-            <div>
-              <strong>${conn.peer}</strong>
-              <div class="friend-status"><span class="dot-online"></span> Conectado</div>
-            </div>
-          </li>
-        `;
-        alert(`Conectado com sucesso com ${conn.peer}!`);
-      });
-
-      // Ouvir convites de partida enviados pelo amigo
-      conn.on('data', (data) => {
-        if (data.type === 'GAME_INVITE') {
-          pendingGameUrl = data.url;
-          document.getElementById('inviteText').textContent = `🎮 ${data.sender} te convidou para jogar ${data.game}!`;
-          document.getElementById('inviteAlert').style.display = 'block';
-        }
-      });
-    }
-
-    // 4. Enviar Convite de Jogo para o Amigo Conectado
-    function inviteFriendToGame(gameName, gameUrl) {
-      if (!activeConnection) {
-        alert('Adicione o ID do seu amigo primeiro para poder convidá-lo!');
-        return;
-      }
-
-      activeConnection.send({
-        type: 'GAME_INVITE',
-        game: gameName,
-        url: gameUrl,
-        sender: peer.id
-      });
-
-      alert(`Convite para jogar ${gameName} enviado para seu amigo!`);
-      window.open(gameUrl, '_blank');
-    }
-
-    function acceptInvite() {
-      document.getElementById('inviteAlert').style.display = 'none';
-      window.open(pendingGameUrl, '_blank');
-    }
-  </script>
+  <script src="app.js"></script>
 </body>
 </html>
-git add index.html
-git commit -m "Adiciona site de e-commerce completo com carrinho"
-git push origin main
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #1e1e2e;
+  color: #fff;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background-color: #181825;
+  border-bottom: 1px solid #313244;
+}
+
+header button {
+  background-color: #a6e3a1;
+  color: #11111b;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+header button:hover {
+  background-color: #94e2d5;
+}
+
+.container {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 60px);
+}
+
+#blocklyDiv {
+  flex: 1;
+  height: 100%;
+}
+
+.game-area {
+  width: 440px;
+  background-color: #181825;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  border-left: 2px solid #313244;
+}
+
+.game-area h2 {
+  margin-bottom: 15px;
+  font-size: 18px;
+  color: #cdd6f4;
+}
+
+canvas {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+// 1. Inicializar o Blockly na tela
+const workspace = Blockly.inject('blocklyDiv', {
+  toolbox: document.getElementById('toolbox'),
+  scrollbars: true,
+  trashcan: true
+});
+
+// Contexto do Canvas para o jogo
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+let player = { x: 180, y: 180, size: 40, color: '#ff0000' };
+
+function drawPlayer() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = player.color;
+  ctx.fillRect(player.x, player.y, player.size, player.size);
+}
+drawPlayer();
+
+// 2. Criar a nossa "Linguagem de Programação em Blocos"
+
+// Bloco: Quando Começar
+Blockly.Blocks['when_start'] = {
+  init: function() {
+    this.appendDummyInput().appendField("🏁 Quando Clicar em Rodar");
+    this.setNextStatement(true, null);
+    this.setColour(45);
+    this.setTooltip("Ponto de partida do jogo");
+  }
+};
+javascript.javascriptGenerator.forBlock['when_start'] = function(block) {
+  return '// Inicio do Jogo\n';
+};
+
+// Bloco: Mover Jogador
+Blockly.Blocks['move_player'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField("Mover")
+        .appendField(new Blockly.FieldDropdown([
+          ["➡️ Direita", "RIGHT"],
+          ["⬅️ Esquerda", "LEFT"],
+          ["⬆️ Cima", "UP"],
+          ["⬇️ Baixo", "DOWN"]
+        ]), "DIR")
+        .appendField("em")
+        .appendField(new Blockly.FieldNumber(20), "STEPS")
+        .appendField("pixels");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(210);
+  }
+};
+javascript.javascriptGenerator.forBlock['move_player'] = function(block, generator) {
+  const dir = block.getFieldValue('DIR');
+  const steps = block.getFieldValue('STEPS');
+  return `movePlayer("${dir}", ${steps});\n`;
+};
+
+// Bloco: Mudar Cor
+Blockly.Blocks['set_color'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField("Mudar cor do personagem para")
+        .appendField(new Blockly.FieldColour("#ff0000"), "COLOR");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(270);
+  }
+};
+javascript.javascriptGenerator.forBlock['set_color'] = function(block) {
+  const color = block.getFieldValue('COLOR');
+  return `player.color = "${color}"; drawPlayer();\n`;
+};
+
+// 3. Funções de Suporte do Jogo
+function movePlayer(direction, steps) {
+  if (direction === 'RIGHT') player.x = Math.min(canvas.width - player.size, player.x + steps);
+  if (direction === 'LEFT') player.x = Math.max(0, player.x - steps);
+  if (direction === 'UP') player.y = Math.max(0, player.y - steps);
+  if (direction === 'DOWN') player.y = Math.min(canvas.height - player.size, player.y + steps);
+  drawPlayer();
+}
+
+// 4. Botão de Execução
+document.getElementById('runBtn').addEventListener('click', () => {
+  // Reinicia posição
+  player.x = 180;
+  player.y = 180;
+  drawPlayer();
+
+  // Converte os blocos visuais para código JavaScript e executa
+  const code = javascript.javascriptGenerator.workspaceToCode(workspace);
+  try {
+    eval(code);
+  } catch (e) {
+    console.error("Erro ao executar os blocos:", e);
+  }
+});
