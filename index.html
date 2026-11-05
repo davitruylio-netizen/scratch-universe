@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gamer Hub & Voice Zone</title>
+  <title>GamerZone - Hub Social & Multiplayer</title>
+  <!-- Biblioteca PeerJS para IDs e Conexão de Amigos em Tempo Real -->
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <style>
     :root {
       --bg-dark: #0b0f19;
@@ -26,7 +28,7 @@
     }
 
     header {
-      background: rgba(21, 29, 48, 0.8);
+      background: rgba(21, 29, 48, 0.9);
       backdrop-filter: blur(10px);
       padding: 1rem 2rem;
       display: flex;
@@ -39,32 +41,26 @@
     }
 
     .logo {
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       font-weight: 800;
       color: var(--accent-purple);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
     }
 
-    .status-badge {
-      background: #064e3b;
-      color: var(--accent-green);
-      padding: 0.4rem 0.8rem;
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: #0f172a;
+      padding: 0.5rem 1rem;
       border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      border: 1px solid #334155;
     }
 
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      background: var(--accent-green);
-      border-radius: 50%;
-      box-shadow: 0 0 8px var(--accent-green);
+    .my-id-badge {
+      font-weight: bold;
+      color: var(--accent-green);
+      font-family: monospace;
+      font-size: 1rem;
     }
 
     .container {
@@ -72,51 +68,75 @@
       margin: 2rem auto;
       padding: 0 1rem;
       width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 2rem;
     }
 
     .section-title {
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       font-weight: 700;
       margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
     }
 
-    /* Links de Voz / Calls */
-    .calls-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2.5rem;
-    }
-
-    .call-btn {
+    /* Painel de Amigos (Sidebar) */
+    .sidebar {
       background: var(--card-bg);
-      border: 1px solid #243049;
-      border-radius: 12px;
-      padding: 1rem;
-      text-decoration: none;
+      border-radius: 14px;
+      padding: 1.2rem;
+      border: 1px solid #1f293d;
+      height: fit-content;
+    }
+
+    .add-friend-box {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .add-friend-box input {
+      flex: 1;
+      padding: 0.6rem;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      background: #0f172a;
       color: var(--text);
+      font-size: 0.9rem;
+    }
+
+    .btn-action {
+      background: var(--accent-purple);
+      color: white;
+      border: none;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .friends-list { list-style: none; }
+
+    .friend-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.8rem 0;
+      border-bottom: 1px solid #1f293d;
+    }
+
+    .friend-status {
       display: flex;
       align-items: center;
-      gap: 1rem;
-      font-weight: 600;
-      transition: all 0.2s ease;
+      gap: 6px;
+      font-size: 0.85rem;
     }
 
-    .call-btn:hover {
-      transform: translateY(-3px);
-      border-color: var(--accent-purple);
-      box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
-    }
+    .dot-online { width: 8px; height: 8px; background: var(--accent-green); border-radius: 50%; }
 
-    .call-icon { font-size: 1.8rem; }
-
-    /* Jogos Grid */
+    /* Grid de Jogos */
     .games-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
       gap: 1.5rem;
     }
 
@@ -124,219 +144,175 @@
       background: var(--card-bg);
       border: 1px solid #1f293d;
       border-radius: 14px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      transition: all 0.2s ease;
-    }
-
-    .game-card:hover {
-      transform: translateY(-4px);
-      border-color: var(--accent-blue);
-    }
-
-    .game-banner {
-      height: 120px;
-      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 3.5rem;
-    }
-
-    .game-info {
       padding: 1.2rem;
       display: flex;
       flex-direction: column;
-      flex: 1;
+      justify-content: space-between;
     }
 
-    .game-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin-bottom: 0.3rem;
-    }
+    .game-icon { font-size: 3rem; text-align: center; margin-bottom: 0.5rem; }
+    .game-title { font-weight: bold; font-size: 1.1rem; margin-bottom: 0.4rem; }
+    .game-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; }
 
-    .game-desc {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 1rem;
-      flex: 1;
-    }
-
-    .game-actions {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .btn-play {
-      flex: 1;
+    /* Notificação de Convite */
+    .invite-alert {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
       background: var(--accent-purple);
       color: white;
-      border: none;
-      padding: 0.6rem;
-      border-radius: 8px;
-      font-weight: 700;
-      cursor: pointer;
-      text-align: center;
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: background 0.2s;
-    }
-
-    .btn-play:hover { background: #7c3aed; }
-
-    /* Modal do Jogo */
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.85);
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
       display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
+      z-index: 2000;
     }
 
-    .modal-overlay.active { display: flex; }
-
-    .modal-content {
-      background: var(--card-bg);
-      width: 90%;
-      max-width: 900px;
-      height: 80vh;
-      border-radius: 14px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .modal-header {
-      padding: 1rem;
-      background: #0f172a;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .modal-iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
+    @media (max-width: 768px) {
+      .container { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
   <header>
-    <div class="logo">🎮 GamerZone Hub</div>
-    <div class="status-badge">
-      <span class="status-dot"></span> Online & Pronto para Jogar
+    <div class="logo">🎮 GamerZone Social</div>
+    <div class="user-profile">
+      <span>Seu ID Gamer:</span>
+      <span class="my-id-badge" id="my-id">Gerando ID...</span>
     </div>
   </header>
 
   <div class="container">
     
-    <!-- Seção de Voz e Calls -->
-    <h2 class="section-title">📞 Salas de Voz & Chamadas</h2>
-    <div class="calls-grid">
-      <a href="https://discord.com/app" target="_blank" class="call-btn">
-        <span class="call-icon">💬</span>
-        <div>
-          <div>Discord</div>
-          <small style="color: var(--text-muted)">Servidores e Calls</small>
+    <!-- ÁREA PRINCIPAL: JOGOS MULTIPLAYER -->
+    <main>
+      <h2 class="section-title">🕹️ Escolha um Jogo para Jogar com Amigos</h2>
+      
+      <div class="games-grid">
+        <!-- Jogo 1: Gartic -->
+        <div class="game-card">
+          <div class="game-icon">✏️</div>
+          <div class="game-title">Gartic.io</div>
+          <div class="game-desc">Desenhe e adivinhe em salas privadas com seus amigos conectados.</div>
+          <button class="btn-action" onclick="inviteFriendToGame('Gartic', 'https://gartic.io')">Jogar Junto</button>
         </div>
-      </a>
-      <a href="https://web.whatsapp.com" target="_blank" class="call-btn">
-        <span class="call-icon">📱</span>
-        <div>
-          <div>WhatsApp Web</div>
-          <small style="color: var(--text-muted)">Chamadas de Grupo</small>
-        </div>
-      </a>
-      <a href="https://meet.google.com" target="_blank" class="call-btn">
-        <span class="call-icon">📹</span>
-        <div>
-          <div>Google Meet</div>
-          <small style="color: var(--text-muted)">Sala rápida de vídeo</small>
-        </div>
-      </a>
-    </div>
 
-    <!-- Seção de Jogos Online -->
-    <h2 class="section-title">🕹️ Jogos Multiplayer & Arcade</h2>
-    <div class="games-grid">
+        <!-- Jogo 2: Ludo / Board -->
+        <div class="game-card">
+          <div class="game-icon">🎲</div>
+          <div class="game-title">Ludo King / Board</div>
+          <div class="game-desc">Partidas clássicas de tabuleiro multiplayer online.</div>
+          <button class="btn-action" onclick="inviteFriendToGame('Ludo', 'https://ludo.com')">Jogar Junto</button>
+        </div>
 
-      <!-- Jogo 1 (Gartic / Desenho) -->
-      <div class="game-card">
-        <div class="game-banner" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">✏️</div>
-        <div class="game-info">
-          <div class="game-title">Gartic</div>
-          <div class="game-desc">Jogo de adivinhar desenhos multiplayer para jogar com a galera.</div>
-          <div class="game-actions">
-            <a href="https://gartic.com.br" target="_blank" class="btn-play">Abrir Sala</a>
-          </div>
+        <!-- Jogo 3: Xadrez -->
+        <div class="game-card">
+          <div class="game-icon">♟️</div>
+          <div class="game-title">Xadrez 1v1</div>
+          <div class="game-desc">Crie um duelo direto de inteligência contra seu amigo.</div>
+          <button class="btn-action" onclick="inviteFriendToGame('Xadrez', 'https://lichess.org')">Desafiar Amigo</button>
         </div>
       </div>
+    </main>
 
-      <!-- Jogo 2 (Skribbl.io) -->
-      <div class="game-card">
-        <div class="game-banner" style="background: linear-gradient(135deg, #10b981, #3b82f6);">🎨</div>
-        <div class="game-info">
-          <div class="game-title">Skribbl.io</div>
-          <div class="game-desc">Crie salas privadas rápidas para desenhar e adivinhar em grupo.</div>
-          <div class="game-actions">
-            <a href="https://skribbl.io" target="_blank" class="btn-play">Jogar Junto</a>
-          </div>
-        </div>
+    <!-- SIDEBAR: SISTEMA DE AMIGOS -->
+    <aside class="sidebar">
+      <h2 class="section-title">👥 Adicionar Amigo</h2>
+      
+      <div class="add-friend-box">
+        <input type="text" id="friendIdInput" placeholder="Cole o ID do amigo...">
+        <button class="btn-action" onclick="addFriend()">Conectar</button>
       </div>
 
-      <!-- Jogo 3 (Chess.com) -->
-      <div class="game-card">
-        <div class="game-banner" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">♟️</div>
-        <div class="game-info">
-          <div class="game-title">Xadrez Online</div>
-          <div class="game-desc">Desafie seus amigos para partidas rápidas de xadrez online.</div>
-          <div class="game-actions">
-            <a href="https://www.chess.com" target="_blank" class="btn-play">Desafiar</a>
-          </div>
-        </div>
-      </div>
+      <h2 class="section-title">Lista de Amigos</h2>
+      <ul class="friends-list" id="friendsList">
+        <li style="color: var(--text-muted); font-size: 0.85rem;">Nenhum amigo conectado ainda.</li>
+      </ul>
+    </aside>
 
-      <!-- Jogo 4 (2048 - Jogue Direto na Página) -->
-      <div class="game-card">
-        <div class="game-banner" style="background: linear-gradient(135deg, #ec4899, #8b5cf6);">🧩</div>
-        <div class="game-info">
-          <div class="game-title">2048 Puzzle</div>
-          <div class="game-desc">Jogo de raciocínio direto na página enquanto espera no lobby.</div>
-          <div class="game-actions">
-            <button class="btn-play" onclick="openGame('https://play2048.co/')">Jogar Agora</button>
-          </div>
-        </div>
-      </div>
-
-    </div>
   </div>
 
-  <!-- Modal de Jogo Embutido -->
-  <div class="modal-overlay" id="gameModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <span>🎮 Jogando no Hub</span>
-        <button onclick="closeGame()" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;">✕</button>
-      </div>
-      <iframe class="modal-iframe" id="gameFrame" src=""></iframe>
-    </div>
+  <!-- ALERTA DE CONVITE RECEBIDO -->
+  <div class="invite-alert" id="inviteAlert">
+    <div id="inviteText">Um amigo te chamou para jogar!</div>
+    <button class="btn-action" style="margin-top:8px; background:white; color:black;" onclick="acceptInvite()">Aceitar e Entrar</button>
   </div>
 
   <script>
-    function openGame(url) {
-      document.getElementById('gameFrame').src = url;
-      document.getElementById('gameModal').classList.add('active');
+    // 1. Inicializa o PeerJS gerando um ID aleatório único para o usuário
+    const randomId = 'Gamer-' + Math.floor(1000 + Math.random() * 9000);
+    const peer = new Peer(randomId);
+
+    let activeConnection = null;
+    let pendingGameUrl = '';
+
+    // Exibe o ID na tela assim que o servidor conecta
+    peer.on('open', (id) => {
+      document.getElementById('my-id').textContent = id;
+    });
+
+    // 2. Receber solicitação/mensagem de um amigo
+    peer.on('connection', (conn) => {
+      activeConnection = conn;
+      setupConnectionHandlers(conn);
+    });
+
+    // 3. Conectar ao ID digitado pelo usuário
+    function addFriend() {
+      const friendId = document.getElementById('friendIdInput').value.trim();
+      if (!friendId) return alert('Por favor, digite o ID do seu amigo!');
+      
+      activeConnection = peer.connect(friendId);
+      setupConnectionHandlers(activeConnection);
     }
 
-    function closeGame() {
-      document.getElementById('gameModal').classList.remove('active');
-      document.getElementById('gameFrame').src = '';
+    function setupConnectionHandlers(conn) {
+      conn.on('open', () => {
+        // Atualiza a lista de amigos na tela
+        const list = document.getElementById('friendsList');
+        list.innerHTML = `
+          <li class="friend-item">
+            <div>
+              <strong>${conn.peer}</strong>
+              <div class="friend-status"><span class="dot-online"></span> Conectado</div>
+            </div>
+          </li>
+        `;
+        alert(`Conectado com sucesso com ${conn.peer}!`);
+      });
+
+      // Ouvir convites de partida enviados pelo amigo
+      conn.on('data', (data) => {
+        if (data.type === 'GAME_INVITE') {
+          pendingGameUrl = data.url;
+          document.getElementById('inviteText').textContent = `🎮 ${data.sender} te convidou para jogar ${data.game}!`;
+          document.getElementById('inviteAlert').style.display = 'block';
+        }
+      });
+    }
+
+    // 4. Enviar Convite de Jogo para o Amigo Conectado
+    function inviteFriendToGame(gameName, gameUrl) {
+      if (!activeConnection) {
+        alert('Adicione o ID do seu amigo primeiro para poder convidá-lo!');
+        return;
+      }
+
+      activeConnection.send({
+        type: 'GAME_INVITE',
+        game: gameName,
+        url: gameUrl,
+        sender: peer.id
+      });
+
+      alert(`Convite para jogar ${gameName} enviado para seu amigo!`);
+      window.open(gameUrl, '_blank');
+    }
+
+    function acceptInvite() {
+      document.getElementById('inviteAlert').style.display = 'none';
+      window.open(pendingGameUrl, '_blank');
     }
   </script>
 </body>
