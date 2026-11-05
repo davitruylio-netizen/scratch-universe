@@ -422,143 +422,225 @@ footer {
   SCRATCH UNIVERSE © 2026 — Criado para conectar mundos.
 </footer>
 
+ "").toLowerCase();
 
 <script>
-const API = "https://api.scratch.mit.edu";
-  
 let currentCategory = "todos";
+let hasLiveResults = false;
 
-async function getScratchData(path) {
-  const response = await fetch(API + path);
+const SCRATCH_API = "https://api.scratch.mit.edu";
+const TURBOWARP_API = "https://trampoline.turbowarp.org/api";
 
-  if (!response.ok) {
-    throw new Error("Não foi possível consultar o Scratch.");
+// Consulta uma API e tenta a alternativa caso a primeira falhe.
+async function fetchFromAPIs(urls) {
+  let lastError;
+
+  for (const url of urls) {
+    try {
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error("Erro HTTP: " + response.status);
+      }
+
+      return await response.json();
+    } catch (error) {
+      lastError = error;
+    }
   }
 
-  return await response.json();
+  throw lastError || new Error("Não foi possível acessar o Scratch.");
 }
 
+// Mantém compatibilidade com consultas antigas.
+async function getScratchData(path) {
+  return fetchFromAPIs([
+    SCRATCH_API + path,
+    TURBOWARP_API + path
+  ]);
+}
+
+// Cria um cartão de jogo com segurança.
 function createGameCard(project) {
   const card = document.createElement("article");
   card.className = "game-card";
-  card.dataset.category = "todos";
-  card.dataset.name = (project.title || "").toLowerCase();
 
-  const cover = document.createElement("img");
-  cover.src = `https://uploads.scratch.mit.edu/get_image/project/${project.id}_480x360.png`;
-  cover.alt = project.title || "Capa do jogo";
-  cover.style.cssText =
-    "width:100%;height:155px;object-fit:cover;display:block;";
-  cover.onerror = () => {
-    cover.alt = "Capa indisponível";
+  const title = project.title || "Jogo sem título";
+  const id = project.id;
+  const author = project.author?.username || "Criador desconhecido";
+
+  const loves = project.stats?.loves ?? 0;
+  const views = project.stats?.views ?? 0;
+
+  const image = document.createElement("img");
+  image.src = `https://uploads.scratch.mit.edu/get_image/project/${id}_480x360.png`;
+  image.alt = title;
+  image.loading = "lazy";
+  image.style.width = "100%";
+  image.style.display = "block";
+  image.style.objectFit = "cover";
+
+  image.onerror = function () {
+    this.onerror = null;
+    this.src = `https://cdn2.scratch.mit.edu/get_image/project/${id}_480x360.png`;
   };
 
   const info = document.createElement("div");
   info.className = "card-info";
 
-  const title = document.createElement("h3");
-  title.textContent = project.title || "Jogo sem título";
+  const heading = document.createElement("h3");
+  heading.textContent = title;
 
-  const author = document.createElement("p");
-  author.textContent =
-    "Criador: " + (project.author?.username || "Desconhecido");
+  const creator = document.createElement("p");
+  creator.textContent = "Criado por: " + author;
 
   const stats = document.createElement("p");
-  stats.textContent =
-    `❤️ ${project.stats?.loves || 0}  |  👁️ ${project.stats?.views || 0}`;
+  stats.textContent = `❤️ ${loves}  |  👁️ ${views}`;
 
-  const button = document.createElement("button");
-  button.className = "game-button";
-  button.textContent = "JOGAR AGORA";
-  button.disabled = false;
-  button.style.cursor = "pointer";
+  const link = document.createElement("a");
+  link.href = `https://scratch.mit.edu/projects/${id}/`;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.textContent = "JOGAR NO SCRATCH";
+  link.style.display = "inline-block";
+  link.style.marginTop = "10px";
 
-  button.onclick = () => {
-    window.open(
-      `https://scratch.mit.edu/projects/${project.id}/`,
-      "_blank",
-      "noopener"
-    );
-  };
+  info.appendChild(heading);
+  info.appendChild(creator);
+  info.appendChild(stats);
+  info.appendChild(link);
 
-  info.append(title, author, stats, button);
-  card.append(cover, info);
+  card.appendChild(image);
+  card.appendChild(info);
 
   return card;
 }
 
+// Exibe uma mensagem na área de resultados.
+function showMessage(title, description) {
+  const empty = document.getElementById("empty");
+
+  if (!empty) return;
+
+  empty.style.display = "block";
+
+  const heading = empty.querySelector("h2");
+  const paragraph = empty.querySelector("p");
+
+  if (heading) heading.textContent = title;
+  if (paragraph) paragraph.textContent = description;
+}
+
+// Pesquisa projetos no Scratch.
 async function searchGames() {
   const input = document.getElementById("searchInput");
-  const query = input.value.trim();
   const container = document.getElementById("games");
   const empty = document.getElementById("empty");
+
+  if (!input || !container || !empty) {
+    console.error("Elementos da página não encontrados.");
+    return;
+  }
+
+  const query = input.value.trim();
 
   if (!query) {
     input.focus();
     return;
   }
 
-  container.innerHTML = `
-    <p style="color:#78d9ff">
-      🌌 Explorando o universo Scratch...
-    </p>
-  `;
-
-  empty.style.display = "none";
-
+  hasLiveResults = true;
   currentCategory = "todos";
 
-  document.querySelectorAll(".category").forEach(item => {
-    item.classList.remove("active");
+  document.querySelectorAll(".category").forEach(button => {
+    button.classList.remove("active");
   });
 
-  document.querySelector(".category").classList.add("active");
+  const firstCategory = document.querySelector(".category");
+  if (firstCategory) firstCategory.classList.add("active");
+
+  container.innerHTML = "";
+  empty.style.display = "none";
+
+  const loading = document.createElement("p");
+  loading.textContent = "🌌 Explorando o universo Scratch...";
+  loading.style.color = "#78d9ff";
+  container.appendChild(loading);
 
   try {
     let projects;
 
+    // Pesquisa por ID.
     if (/^\d+$/.test(query)) {
-      const project = await getScratchData(
-        `/projects/${query}`
-      );
+      const id = encodeURIComponent(query);
+
+      const project = await fetchFromAPIs([
+        `${TURBOWARP_API}/projects/${id}`,
+        `${SCRATCH_API}/projects/${id}`
+      ]);
+
+      if (!project || !project.id) {
+        throw new Error("Projeto não encontrado.");
+      }
 
       projects = [project];
-    } else {
-      const params = new URLSearchParams({
-  q: query,
-  limit: "20",
-  offset: "0",
-  mode: "popular"
-});
 
-      projects = await getScratchData(
-        `/search/projects?${params.toString()}`
-      );
+    } else {
+      // Pesquisa por nome.
+      const params = new URLSearchParams({
+        q: query,
+        limit: "20",
+        offset: "0",
+        mode: "popular"
+      });
+
+      const searchPath = `/search/projects?${params.toString()}`;
+
+      projects = await fetchFromAPIs([
+        SCRATCH_API + searchPath,
+        TURBOWARP_API + searchPath
+      ]);
     }
 
     container.innerHTML = "";
 
     if (!Array.isArray(projects) || projects.length === 0) {
-      empty.style.display = "block";
+      showMessage(
+        "Nenhum jogo encontrado",
+        "Tente outro nome ou confira se o ID está correto."
+      );
       return;
     }
 
-    projects.forEach(project => {
+    const validProjects = projects.filter(project => {
+      return project && project.id;
+    });
+
+    if (validProjects.length === 0) {
+      showMessage(
+        "Nenhum jogo encontrado",
+        "Não encontramos projetos válidos nessa pesquisa."
+      );
+      return;
+    }
+
+    validProjects.forEach(project => {
       container.appendChild(createGameCard(project));
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("Erro na pesquisa:", error);
+
     container.innerHTML = "";
 
-    empty.style.display = "block";
-    empty.querySelector("h2").textContent =
-      "Não conseguimos encontrar os jogos";
-    empty.querySelector("p").textContent =
-      "Tente novamente em alguns instantes ou confira o ID.";
+    showMessage(
+      "Não foi possível pesquisar",
+      "O Scratch pode estar temporariamente indisponível. Tente novamente."
+    );
   }
 }
 
+// Compatibilidade com os filtros de categorias.
 function filterGames(category, button) {
   currentCategory = category;
 
@@ -566,32 +648,50 @@ function filterGames(category, button) {
     item.classList.remove("active");
   });
 
-  button.classList.add("active");
+  if (button) button.classList.add("active");
 
-  const cards = document.querySelectorAll(".game-card");
-  let visible = 0;
+  // Resultados da busca ao vivo não possuem categorias classificadas.
+  if (hasLiveResults) return;
 
-  cards.forEach(card => {
-    const matches =
-      category === "todos" ||
-      card.dataset.category === category;
-
-    card.style.display = matches ? "block" : "none";
-
-    if (matches) visible++;
-  });
-
-  document.getElementById("empty").style.display =
-    visible === 0 ? "block" : "none";
+  updateGames();
 }
 
-document.getElementById("searchInput")
-  .addEventListener("keydown", event => {
-    if (event.key === "Enter") {
-      searchGames();
-    }
+function updateGames() {
+  const cards = document.querySelectorAll(".game-card");
+
+  cards.forEach(card => {
+    const category = card.dataset.category || "todos";
+
+    card.style.display =
+      currentCategory === "todos" ||
+      category === currentCategory
+        ? ""
+        : "none";
   });
+}
+
+// Pesquisa também quando o usuário aperta Enter.
+document.addEventListener("DOMContentLoaded", function () {
+  const input = document.getElementById("searchInput");
+
+  if (input) {
+    input.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+        searchGames();
+      }
+    });
+  }
+});
 </script>
+
+
+
+ 
+ 
+
+ 
+   
+ 
 
 
 </body>
