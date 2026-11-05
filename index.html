@@ -3,29 +3,106 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Crie Jogos em Blocos</title>
-  <link rel="stylesheet" href="style.css" />
-  <!-- Carregando o Google Blockly -->
+  <title>Criador de Jogos em Blocos</title>
+  
+  <!-- Biblioteca Google Blockly via CDN -->
   <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+
+  <!-- CSS (Estilo Visual) -->
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background-color: #1e1e2e;
+      color: #fff;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 24px;
+      background-color: #181825;
+      border-bottom: 1px solid #313244;
+    }
+
+    header button {
+      background-color: #a6e3a1;
+      color: #11111b;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    header button:hover {
+      background-color: #94e2d5;
+    }
+
+    .container {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 60px);
+    }
+
+    #blocklyDiv {
+      flex: 1;
+      height: 100%;
+    }
+
+    .game-area {
+      width: 440px;
+      background-color: #181825;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      border-left: 2px solid #313244;
+    }
+
+    .game-area h2 {
+      margin-bottom: 15px;
+      font-size: 18px;
+      color: #cdd6f4;
+    }
+
+    canvas {
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+  </style>
 </head>
 <body>
+
   <header>
-    <h1>🎮 Studio Block Game</h1>
-    <button id="runBtn">▶ Rodar Jogo</button>
+    <h1>🎮 Criador de Jogos em Blocos</h1>
+    <button id="runBtn">▶ Executar Jogo</button>
   </header>
 
   <main class="container">
-    <!-- Área onde o Blockly renderiza os blocos -->
+    <!-- Área dos Blocos -->
     <div id="blocklyDiv"></div>
 
-    <!-- Tela onde o jogo é desenhado -->
+    <!-- Tela do Jogo -->
     <div class="game-area">
-      <h2>Execução do Jogo</h2>
+      <h2>Tela do Jogo</h2>
       <canvas id="gameCanvas" width="400" height="400"></canvas>
     </div>
   </main>
 
-  <!-- Caixa de Ferramentas (Blocos Disponíveis) -->
+  <!-- Caixa de Ferramentas dos Blocos -->
   <xml id="toolbox" style="display: none">
     <category name="Eventos" colour="#FFBF00">
       <block type="when_start"></block>
@@ -36,189 +113,107 @@
     <category name="Aparência" colour="#9966FF">
       <block type="set_color"></block>
     </category>
-    <category name="Controle" colour="#FFAB19">
-      <block type="controls_repeat_ext">
-        <value name="TIMES">
-          <shadow type="math_number">
-            <field name="NUM">10</field>
-          </shadow>
-        </value>
-      </block>
-    </category>
   </xml>
 
-  <script src="app.js"></script>
+  <!-- JavaScript (Lógica da Linguagem e do Jogo) -->
+  <script>
+    // 1. Inicializar o Blockly na tela
+    const workspace = Blockly.inject('blocklyDiv', {
+      toolbox: document.getElementById('toolbox'),
+      scrollbars: true,
+      trashcan: true
+    });
+
+    // 2. Configurar o Canvas do Jogo
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let player = { x: 180, y: 180, size: 40, color: '#ff0000' };
+
+    function drawPlayer() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = player.color;
+      ctx.fillRect(player.x, player.y, player.size, player.size);
+    }
+    drawPlayer();
+
+    // 3. Definir os Blocos Customizados da nossa Linguagem
+
+    // Bloco: Quando Clicar em Rodar
+    Blockly.Blocks['when_start'] = {
+      init: function() {
+        this.appendDummyInput().appendField("🏁 Quando Clicar em Rodar");
+        this.setNextStatement(true, null);
+        this.setColour(45);
+      }
+    };
+    javascript.javascriptGenerator.forBlock['when_start'] = function(block) {
+      return '// Inicio\n';
+    };
+
+    // Bloco: Mover Jogador
+    Blockly.Blocks['move_player'] = {
+      init: function() {
+        this.appendDummyInput()
+            .appendField("Mover")
+            .appendField(new Blockly.FieldDropdown([
+              ["➡️ Direita", "RIGHT"],
+              ["⬅️ Esquerda", "LEFT"],
+              ["⬆️ Cima", "UP"],
+              ["⬇️ Baixo", "DOWN"]
+            ]), "DIR")
+            .appendField("em")
+            .appendField(new Blockly.FieldNumber(30), "STEPS")
+            .appendField("pixels");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(210);
+      }
+    };
+    javascript.javascriptGenerator.forBlock['move_player'] = function(block) {
+      const dir = block.getFieldValue('DIR');
+      const steps = block.getFieldValue('STEPS');
+      return `movePlayer("${dir}", ${steps});\n`;
+    };
+
+    // Bloco: Mudar Cor
+    Blockly.Blocks['set_color'] = {
+      init: function() {
+        this.appendDummyInput()
+            .appendField("Mudar cor do bloco para")
+            .appendField(new Blockly.FieldColour("#0000ff"), "COLOR");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(270);
+      }
+    };
+    javascript.javascriptGenerator.forBlock['set_color'] = function(block) {
+      const color = block.getFieldValue('COLOR');
+      return `player.color = "${color}"; drawPlayer();\n`;
+    };
+
+    // 4. Execução dos Comandos
+    function movePlayer(direction, steps) {
+      if (direction === 'RIGHT') player.x = Math.min(canvas.width - player.size, player.x + steps);
+      if (direction === 'LEFT') player.x = Math.max(0, player.x - steps);
+      if (direction === 'UP') player.y = Math.max(0, player.y - steps);
+      if (direction === 'DOWN') player.y = Math.min(canvas.height - player.size, player.y + steps);
+      drawPlayer();
+    }
+
+    document.getElementById('runBtn').addEventListener('click', () => {
+      // Reseta a posição inicial ao rodar
+      player.x = 180;
+      player.y = 180;
+      drawPlayer();
+
+      // Transforma blocos visuais em código e executa
+      const code = javascript.javascriptGenerator.workspaceToCode(workspace);
+      try {
+        eval(code);
+      } catch (e) {
+        console.error("Erro de execução:", e);
+      }
+    });
+  </script>
 </body>
 </html>
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-body {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background-color: #1e1e2e;
-  color: #fff;
-}
-
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 24px;
-  background-color: #181825;
-  border-bottom: 1px solid #313244;
-}
-
-header button {
-  background-color: #a6e3a1;
-  color: #11111b;
-  border: none;
-  padding: 10px 20px;
-  font-size: 16px;
-  font-weight: bold;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-header button:hover {
-  background-color: #94e2d5;
-}
-
-.container {
-  display: flex;
-  flex: 1;
-  height: calc(100vh - 60px);
-}
-
-#blocklyDiv {
-  flex: 1;
-  height: 100%;
-}
-
-.game-area {
-  width: 440px;
-  background-color: #181825;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-  border-left: 2px solid #313244;
-}
-
-.game-area h2 {
-  margin-bottom: 15px;
-  font-size: 18px;
-  color: #cdd6f4;
-}
-
-canvas {
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-// 1. Inicializar o Blockly na tela
-const workspace = Blockly.inject('blocklyDiv', {
-  toolbox: document.getElementById('toolbox'),
-  scrollbars: true,
-  trashcan: true
-});
-
-// Contexto do Canvas para o jogo
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-
-let player = { x: 180, y: 180, size: 40, color: '#ff0000' };
-
-function drawPlayer() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = player.color;
-  ctx.fillRect(player.x, player.y, player.size, player.size);
-}
-drawPlayer();
-
-// 2. Criar a nossa "Linguagem de Programação em Blocos"
-
-// Bloco: Quando Começar
-Blockly.Blocks['when_start'] = {
-  init: function() {
-    this.appendDummyInput().appendField("🏁 Quando Clicar em Rodar");
-    this.setNextStatement(true, null);
-    this.setColour(45);
-    this.setTooltip("Ponto de partida do jogo");
-  }
-};
-javascript.javascriptGenerator.forBlock['when_start'] = function(block) {
-  return '// Inicio do Jogo\n';
-};
-
-// Bloco: Mover Jogador
-Blockly.Blocks['move_player'] = {
-  init: function() {
-    this.appendDummyInput()
-        .appendField("Mover")
-        .appendField(new Blockly.FieldDropdown([
-          ["➡️ Direita", "RIGHT"],
-          ["⬅️ Esquerda", "LEFT"],
-          ["⬆️ Cima", "UP"],
-          ["⬇️ Baixo", "DOWN"]
-        ]), "DIR")
-        .appendField("em")
-        .appendField(new Blockly.FieldNumber(20), "STEPS")
-        .appendField("pixels");
-    this.setPreviousStatement(true, null);
-    this.setNextStatement(true, null);
-    this.setColour(210);
-  }
-};
-javascript.javascriptGenerator.forBlock['move_player'] = function(block, generator) {
-  const dir = block.getFieldValue('DIR');
-  const steps = block.getFieldValue('STEPS');
-  return `movePlayer("${dir}", ${steps});\n`;
-};
-
-// Bloco: Mudar Cor
-Blockly.Blocks['set_color'] = {
-  init: function() {
-    this.appendDummyInput()
-        .appendField("Mudar cor do personagem para")
-        .appendField(new Blockly.FieldColour("#ff0000"), "COLOR");
-    this.setPreviousStatement(true, null);
-    this.setNextStatement(true, null);
-    this.setColour(270);
-  }
-};
-javascript.javascriptGenerator.forBlock['set_color'] = function(block) {
-  const color = block.getFieldValue('COLOR');
-  return `player.color = "${color}"; drawPlayer();\n`;
-};
-
-// 3. Funções de Suporte do Jogo
-function movePlayer(direction, steps) {
-  if (direction === 'RIGHT') player.x = Math.min(canvas.width - player.size, player.x + steps);
-  if (direction === 'LEFT') player.x = Math.max(0, player.x - steps);
-  if (direction === 'UP') player.y = Math.max(0, player.y - steps);
-  if (direction === 'DOWN') player.y = Math.min(canvas.height - player.size, player.y + steps);
-  drawPlayer();
-}
-
-// 4. Botão de Execução
-document.getElementById('runBtn').addEventListener('click', () => {
-  // Reinicia posição
-  player.x = 180;
-  player.y = 180;
-  drawPlayer();
-
-  // Converte os blocos visuais para código JavaScript e executa
-  const code = javascript.javascriptGenerator.workspaceToCode(workspace);
-  try {
-    eval(code);
-  } catch (e) {
-    console.error("Erro ao executar os blocos:", e);
-  }
-});
