@@ -1,83 +1,478 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scratch Universe</title>
-  <style>
-    body {
-      margin: 0;
-      background: #080b19;
-      color: white;
-      font-family: Arial, sans-serif;
-      text-align: center;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scratch Universe</title>
 
-    header {
-      padding: 25px;
-      border-bottom: 1px solid #26304d;
-    }
+<style>
+* {
+  box-sizing: border-box;
+}
 
-    h1 {
-      font-size: 42px;
-      color: #71d5ff;
-    }
+body {
+  margin: 0;
+  background: #070b18;
+  color: white;
+  font-family: Arial, sans-serif;
+  overflow-x: hidden;
+}
 
-    .search {
-      margin: 60px auto;
-      max-width: 600px;
-      padding: 20px;
-    }
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 15% 20%, #163b6444, transparent 30%),
+    radial-gradient(circle at 85% 60%, #532b7140, transparent 35%),
+    radial-gradient(circle at 50% 100%, #102e5540, transparent 40%);
+}
 
-    input {
-      width: 85%;
-      padding: 17px;
-      border-radius: 12px;
-      border: 1px solid #526a9c;
-      background: #141d35;
-      color: white;
-      font-size: 16px;
-    }
+.stars {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-image:
+    radial-gradient(2px 2px at 20px 30px, #fff, transparent),
+    radial-gradient(1px 1px at 90px 80px, #8adfff, transparent),
+    radial-gradient(2px 2px at 160px 150px, #fff, transparent),
+    radial-gradient(1px 1px at 220px 40px, #fff, transparent);
+  background-size: 270px 200px;
+  animation: stars 30s linear infinite;
+}
 
-    button {
-      margin-top: 15px;
-      padding: 15px 35px;
-      border: none;
-      border-radius: 10px;
-      background: #168cff;
-      color: white;
-      font-size: 17px;
-      cursor: pointer;
-    }
+@keyframes stars {
+  from { transform: translateY(0); }
+  to { transform: translateY(-200px); }
+}
 
-    .welcome {
-      color: #aab8d6;
-      font-size: 18px;
-    }
-  </style>
+header {
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 7%;
+  border-bottom: 1px solid #ffffff12;
+  background: #080e20cc;
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.logo {
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: #73d8ff;
+}
+
+.logo span {
+  color: white;
+}
+
+nav {
+  display: flex;
+  gap: 25px;
+}
+
+nav a {
+  color: #aab8d1;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+nav a:hover {
+  color: #65d5ff;
+}
+
+.hero {
+  text-align: center;
+  padding: 85px 20px 65px;
+}
+
+.tag {
+  display: inline-block;
+  border: 1px solid #3976a9;
+  background: #102b48;
+  color: #78d9ff;
+  padding: 9px 17px;
+  border-radius: 30px;
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+
+.hero h1 {
+  font-size: clamp(40px, 7vw, 76px);
+  margin: 25px 0 15px;
+  font-weight: 900;
+  letter-spacing: -2px;
+}
+
+.hero h1 span {
+  background: linear-gradient(90deg, #67d9ff, #a38aff);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.hero p {
+  color: #a3b2ca;
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.search {
+  max-width: 650px;
+  margin: 35px auto 0;
+  display: flex;
+  padding: 7px;
+  border: 1px solid #344b70;
+  background: #101a30;
+  border-radius: 15px;
+  box-shadow: 0 0 35px #208bff18;
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  padding: 15px;
+  background: transparent;
+  color: white;
+  border: none;
+  outline: none;
+  font-size: 15px;
+}
+
+.search button {
+  border: none;
+  background: linear-gradient(120deg, #168bff, #7864ff);
+  color: white;
+  padding: 0 22px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.content {
+  max-width: 1200px;
+  margin: auto;
+  padding: 25px 25px 80px;
+}
+
+.section-title {
+  font-size: 25px;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: #8495b1;
+  font-size: 14px;
+  margin-bottom: 25px;
+}
+
+.categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 25px 0 45px;
+}
+
+.category {
+  background: #111d33;
+  color: #b7c7df;
+  border: 1px solid #293c5b;
+  border-radius: 30px;
+  padding: 11px 18px;
+  cursor: pointer;
+}
+
+.category:hover,
+.category.active {
+  background: #173d64;
+  border-color: #53caff;
+  color: white;
+}
+
+.games {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 22px;
+}
+
+.game-card {
+  overflow: hidden;
+  background: #10192c;
+  border: 1px solid #263650;
+  border-radius: 16px;
+  transition: .25s;
+}
+
+.game-card:hover {
+  transform: translateY(-7px);
+  border-color: #62cfff;
+  box-shadow: 0 12px 35px #168bff20;
+}
+
+.cover {
+  height: 155px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 65px;
+  position: relative;
+}
+
+.space {
+  background: linear-gradient(135deg, #102f66, #563b91);
+}
+
+.horror {
+  background: linear-gradient(135deg, #321b32, #8d3039);
+}
+
+.racing {
+  background: linear-gradient(135deg, #6a2a20, #bd7231);
+}
+
+.adventure {
+  background: linear-gradient(135deg, #14574d, #297b84);
+}
+
+.card-info {
+  padding: 18px;
+}
+
+.card-info h3 {
+  margin: 0 0 9px;
+  font-size: 18px;
+}
+
+.card-info p {
+  color: #8e9db6;
+  font-size: 13px;
+  line-height: 1.5;
+  min-height: 38px;
+}
+
+.game-tag {
+  font-size: 11px;
+  color: #76d9ff;
+  background: #16304a;
+  padding: 6px 10px;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.game-button {
+  width: 100%;
+  margin-top: 15px;
+  padding: 11px;
+  background: #1a2c49;
+  color: #9bb8dc;
+  border: 1px solid #344e72;
+  border-radius: 8px;
+  cursor: not-allowed;
+}
+
+.empty {
+  display: none;
+  text-align: center;
+  color: #a4b5d0;
+  padding: 45px 10px;
+}
+
+footer {
+  text-align: center;
+  border-top: 1px solid #ffffff15;
+  padding: 30px;
+  color: #788ba8;
+  font-size: 13px;
+}
+
+@media(max-width:650px) {
+  header {
+    padding: 0 18px;
+  }
+
+  nav {
+    gap: 12px;
+  }
+
+  nav a {
+    font-size: 12px;
+  }
+
+  .hero {
+    padding-top: 60px;
+  }
+
+  .search button {
+    padding: 0 13px;
+    font-size: 12px;
+  }
+}
+</style>
 </head>
+
 <body>
 
-  <header>
-    <h1>🌌 SCRATCH UNIVERSE</h1>
-    <p>Um universo inteiro de jogos.</p>
-  </header>
+<div class="stars"></div>
 
-  <main class="search">
-    <h2>Encontre seu próximo jogo</h2>
-    <p class="welcome">
-      Milhares de aventuras esperam por você.
-    </p>
+<header>
+  <div class="logo">🌌 SCRATCH <span>UNIVERSE</span></div>
+  <nav>
+    <a href="#inicio">Início</a>
+    <a href="#jogos">Explorar</a>
+  </nav>
+</header>
 
+<section class="hero" id="inicio">
+  <div class="tag">✦ UM UNIVERSO DE POSSIBILIDADES ✦</div>
+
+  <h1>DESCUBRA SEU <span>UNIVERSO</span></h1>
+
+  <p>
+    Milhares de mundos. Infinitas aventuras.<br>
+    Seu próximo jogo começa aqui.
+  </p>
+
+  <div class="search">
     <input
+      id="searchInput"
       type="text"
       placeholder="Digite o nome ou ID de um jogo..."
     >
+    <button onclick="searchGames()">EXPLORAR</button>
+  </div>
+</section>
 
-    <br>
+<main class="content" id="jogos">
 
-    <button>EXPLORAR UNIVERSO</button>
-  </main>
+  <h2 class="section-title">Explore os universos</h2>
+  <p class="subtitle">Escolha seu estilo de aventura.</p>
+
+  <div class="categories">
+    <button class="category active" onclick="filterGames('todos',this)">Todos</button>
+    <button class="category" onclick="filterGames('aventura',this)">⚔️ Aventura</button>
+    <button class="category" onclick="filterGames('terror',this)">👻 Terror</button>
+    <button class="category" onclick="filterGames('corrida',this)">🏎️ Corrida</button>
+    <button class="category" onclick="filterGames('espaco',this)">🚀 Espaço</button>
+  </div>
+
+  <h2 class="section-title">Jogos em destaque</h2>
+  <p class="subtitle">Conheça alguns exemplos do que encontraremos por aqui.</p>
+
+  <div class="games" id="games">
+
+    <article class="game-card" data-category="espaco" data-name="aventura nas estrelas">
+      <div class="cover space">🚀</div>
+      <div class="card-info">
+        <h3>Aventura nas Estrelas</h3>
+        <p>Explore planetas e descubra os mistérios do universo.</p>
+        <span class="game-tag">ESPAÇO</span>
+        <button class="game-button" disabled>EM BREVE</button>
+      </div>
+    </article>
+
+    <article class="game-card" data-category="terror" data-name="mansao sombria">
+      <div class="cover horror">👻</div>
+      <div class="card-info">
+        <h3>Mansão Sombria</h3>
+        <p>Uma casa abandonada esconde segredos assustadores.</p>
+        <span class="game-tag">TERROR</span>
+        <button class="game-button" disabled>EM BREVE</button>
+      </div>
+    </article>
+
+    <article class="game-card" data-category="corrida" data-name="corrida extrema">
+      <div class="cover racing">🏎️</div>
+      <div class="card-info">
+        <h3>Corrida Extrema</h3>
+        <p>Velocidade, desafios e pistas incríveis.</p>
+        <span class="game-tag">CORRIDA</span>
+        <button class="game-button" disabled>EM BREVE</button>
+      </div>
+    </article>
+
+    <article class="game-card" data-category="aventura" data-name="reino perdido">
+      <div class="cover adventure">⚔️</div>
+      <div class="card-info">
+        <h3>Reino Perdido</h3>
+        <p>Entre em um mundo fantástico cheio de aventuras.</p>
+        <span class="game-tag">AVENTURA</span>
+        <button class="game-button" disabled>EM BREVE</button>
+      </div>
+    </article>
+
+  </div>
+
+  <div class="empty" id="empty">
+    <h2>🌌 Nenhum universo encontrado</h2>
+    <p>Tente pesquisar outro nome.</p>
+  </div>
+
+</main>
+
+<footer>
+  SCRATCH UNIVERSE © 2026 — Criado para conectar mundos.
+</footer>
+
+<script>
+let currentCategory = "todos";
+
+function updateGames() {
+  const query = document.getElementById("searchInput")
+    .value.toLowerCase().trim();
+
+  const cards = document.querySelectorAll(".game-card");
+  let visible = 0;
+
+  cards.forEach(card => {
+    const name = card.dataset.name;
+    const category = card.dataset.category;
+
+    const matchesName = name.includes(query);
+    const matchesCategory =
+      currentCategory === "todos" ||
+      category === currentCategory;
+
+    const show = matchesName && matchesCategory;
+
+    card.style.display = show ? "block" : "none";
+
+    if (show) visible++;
+  });
+
+  document.getElementById("empty").style.display =
+    visible === 0 ? "block" : "none";
+}
+
+function searchGames() {
+  updateGames();
+  document.getElementById("jogos").scrollIntoView({
+    behavior: "smooth"
+  });
+}
+
+function filterGames(category, button) {
+  currentCategory = category;
+
+  document.querySelectorAll(".category").forEach(item => {
+    item.classList.remove("active");
+  });
+
+  button.classList.add("active");
+  updateGames();
+}
+
+document.getElementById("searchInput")
+  .addEventListener("input", updateGames);
+</script>
 
 </body>
 </html>
