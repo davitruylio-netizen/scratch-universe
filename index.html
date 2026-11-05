@@ -525,12 +525,11 @@ async function searchGames() {
       projects = [project];
     } else {
       const params = new URLSearchParams({
-        q: query,
-        limit: "20",
-        offset: "0",
-        mode: "popular",
-        language: "pt"
-      });
+  q: query,
+  limit: "20",
+  offset: "0",
+  mode: "popular"
+});
 
       projects = await getScratchData(
         `/search/projects?${params.toString()}`
