@@ -3,355 +3,310 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Multiverso de Jogos Scratch</title>
+  <title>Minha Loja Virtual</title>
   <style>
     :root {
-      --bg-color: #0b0d17;
-      --card-bg: #16192b;
-      --accent-color: #4e54c8;
-      --accent-hover: #8f94fb;
-      --text-color: #ffffff;
-      --text-dim: #a0a5c0;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --primary: #10b981;
+      --primary-hover: #059669;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
 
     body {
-      background-color: var(--bg-color);
-      color: var(--text-color);
+      background-color: var(--bg);
+      color: var(--text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
 
     header {
-      background: linear-gradient(135deg, #4e54c8, #8f94fb);
-      padding: 2.5rem 1rem;
-      text-align: center;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    }
-
-    header h1 {
-      font-size: 2.5rem;
-      margin-bottom: 0.5rem;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    }
-
-    header p {
-      color: #e0e0e0;
-      margin-bottom: 1.5rem;
-    }
-
-    .search-box {
-      max-width: 550px;
-      margin: 0 auto;
+      background: var(--card-bg);
+      padding: 1rem 2rem;
       display: flex;
-      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
 
-    .search-box input {
-      flex: 1;
-      padding: 0.8rem 1.2rem;
-      border-radius: 25px;
-      border: none;
-      font-size: 1rem;
-      outline: none;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--primary);
     }
 
-    .search-box button {
-      background-color: #16192b;
+    .cart-btn {
+      background: var(--primary);
       color: white;
-      border: 2px solid #8f94fb;
-      padding: 0.8rem 1.5rem;
-      border-radius: 25px;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
-      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
     }
 
-    .search-box button:hover {
-      background-color: var(--accent-hover);
-      color: #0b0d17;
-    }
+    .cart-btn:hover { background: var(--primary-hover); }
 
-    main {
+    .container {
       max-width: 1200px;
       margin: 2rem auto;
       padding: 0 1rem;
-      flex-grow: 1;
+      flex: 1;
       width: 100%;
     }
 
-    .section-title {
-      font-size: 1.5rem;
-      margin-bottom: 1.5rem;
-      border-bottom: 2px solid var(--accent-color);
-      display: inline-block;
-      padding-bottom: 5px;
+    .search-bar {
+      margin-bottom: 2rem;
+      display: flex;
+      gap: 1rem;
     }
 
-    .games-grid {
+    .search-bar input {
+      flex: 1;
+      padding: 0.8rem 1rem;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      background: var(--card-bg);
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .products-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
       gap: 1.5rem;
     }
 
-    .game-card {
-      background-color: var(--card-bg);
+    .product-card {
+      background: var(--card-bg);
       border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      cursor: pointer;
+      padding: 1.2rem;
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid #334155;
+      transition: transform 0.2s;
     }
 
-    .game-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 25px rgba(143, 148, 251, 0.4);
-    }
+    .product-card:hover { transform: translateY(-4px); }
 
-    .game-card img {
+    .product-image {
       width: 100%;
       height: 180px;
-      object-fit: cover;
-      background-color: #000;
-    }
-
-    .game-info {
-      padding: 1rem;
+      background: #334155;
+      border-radius: 8px;
       display: flex;
-      flex-direction: column;
-      flex-grow: 1;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      margin-bottom: 1rem;
     }
 
-    .game-info h3 {
-      font-size: 1.1rem;
-      margin-bottom: 0.4rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    .product-title { font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .product-price { font-size: 1.3rem; font-weight: bold; color: var(--primary); margin-bottom: 1rem; }
 
-    .btn-play {
-      background-color: var(--accent-color);
-      color: white;
+    .btn-add {
+      background: #334155;
+      color: var(--text);
       border: none;
       padding: 0.6rem;
       border-radius: 6px;
       font-weight: bold;
       cursor: pointer;
-      text-align: center;
-      transition: background 0.2s;
-      margin-top: auto;
+      transition: all 0.2s;
     }
 
-    .btn-play:hover {
-      background-color: var(--accent-hover);
-    }
+    .btn-add:hover { background: var(--primary); }
 
-    .status-msg {
-      grid-column: 1 / -1;
-      text-align: center;
-      color: var(--text-dim);
-      font-size: 1.1rem;
-      padding: 3rem 0;
-    }
-
-    /* Modal Player */
-    .modal {
-      display: none;
+    /* Modal do Carrinho */
+    .modal-overlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.9);
-      z-index: 1000;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
       justify-content: center;
       align-items: center;
-      padding: 1rem;
+      z-index: 1000;
     }
 
-    .modal-content {
-      background-color: var(--card-bg);
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      background: var(--card-bg);
+      width: 90%;
+      max-width: 500px;
       border-radius: 12px;
-      width: 100%;
-      max-width: 860px;
       padding: 1.5rem;
-      position: relative;
+      max-height: 80vh;
       display: flex;
       flex-direction: column;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
       align-items: center;
+      margin-bottom: 1rem;
     }
 
-    .close-btn {
-      position: absolute;
-      top: 10px;
-      right: 15px;
-      font-size: 2rem;
-      color: var(--text-dim);
-      cursor: pointer;
-      line-height: 1;
+    .cart-items {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 1rem;
     }
 
-    .close-btn:hover {
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.8rem 0;
+      border-bottom: 1px solid #334155;
+    }
+
+    .cart-total {
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-align: right;
+      margin-bottom: 1rem;
+    }
+
+    .btn-checkout {
+      background: var(--primary);
       color: white;
-    }
-
-    .iframe-container {
-      width: 100%;
-      height: 0;
-      padding-bottom: 70%;
-      position: relative;
-      margin-top: 1rem;
-    }
-
-    .iframe-container iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      border: none;
+      padding: 0.8rem;
       border-radius: 8px;
-    }
-
-    footer {
-      text-align: center;
-      padding: 1.5rem;
-      background-color: #080910;
-      color: var(--text-dim);
-      font-size: 0.9rem;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>Universo Scratch 🚀</h1>
-    <p>Explore jogos populares ou digite o ID/Nome de um projeto</p>
-    <form class="search-box" onsubmit="handleSearch(event)">
-      <input type="text" id="searchInput" placeholder="Digite o nome (ex: Minecraft, Sonic) ou ID do jogo..." required>
-      <button type="submit">Pesquisar</button>
-    </form>
+    <div class="logo">🛒 ShopDev</div>
+    <button class="cart-btn" onclick="toggleCart()">
+      🛒 Carrinho (<span id="cart-count">0</span>)
+    </button>
   </header>
 
-  <main>
-    <h2 class="section-title" id="sectionTitle">Jogos Populares em Destaque</h2>
-    <div class="games-grid" id="gamesGrid"></div>
-  </main>
+  <div class="container">
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Buscar produtos..." onkeyup="filterProducts()">
+    </div>
 
-  <div class="modal" id="gameModal">
-    <div class="modal-content">
-      <span class="close-btn" onclick="closeGame()">&times;</span>
-      <h2 id="modalTitle">Carregando Jogo...</h2>
-      <div class="iframe-container">
-        <iframe id="scratchPlayer" src="" frameborder="0" allowfullscreen="true"></iframe>
+    <div class="products-grid" id="productsGrid"></div>
+  </div>
+
+  <!-- Modal do Carrinho -->
+  <div class="modal-overlay" id="cartModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Seu Carrinho</h2>
+        <button onclick="toggleCart()" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;">✕</button>
       </div>
+      <div class="cart-items" id="cartItems"></div>
+      <div class="cart-total">Total: R$ <span id="cartTotal">0.00</span></div>
+      <button class="btn-checkout" onclick="checkout()">Finalizar Pedido via WhatsApp</button>
     </div>
   </div>
 
-  <footer>
-    <p>Multiverso Scratch &copy; 2026 - Conectado via TurboWarp Player</p>
-  </footer>
-
   <script>
-    // Lista base de jogos clássicos confiáveis
-    const defaultGames = [
-      { id: "10128407", title: "Paper Minecraft" },
-      { id: "60917032", title: "Geometry Dash Scratch" },
-      { id: "276660763", title: "Appel v1.4" },
-      { id: "13854124", title: "Flappy Bird Original" },
-      { id: "504268153", title: "Super Mario Bros" },
-      { id: "414768396", title: "Minecraft 3D" },
-      { id: "140502396", title: "Sonic the Hedgehog" },
-      { id: "300305364", title: "Pac-Man" }
+    const products = [
+      { id: 1, name: 'Fone de Ouvido Bluetooth', price: 189.90, icon: '🎧' },
+      { id: 2, name: 'Smartwatch Esportivo', price: 299.00, icon: '⌚' },
+      { id: 3, name: 'Teclado Mecânico RGB', price: 349.50, icon: '⌨️' },
+      { id: 4, name: 'Mouse Sem Fio Ergológico', price: 129.90, icon: '🖱️' },
+      { id: 5, name: 'Mochila Impermeável', price: 159.00, icon: '🎒' },
+      { id: 6, name: 'Caixa de Som Portátil', price: 210.00, icon: '🔊' },
     ];
 
-    const gamesGrid = document.getElementById('gamesGrid');
-    const modal = document.getElementById('gameModal');
-    const scratchPlayer = document.getElementById('scratchPlayer');
-    const modalTitle = document.getElementById('modalTitle');
+    let cart = JSON.parse(localStorage.getItem('shop_cart')) || [];
 
-    document.addEventListener('DOMContentLoaded', () => {
-      renderGames(defaultGames);
-    });
+    function renderProducts(itemsToRender = products) {
+      const grid = document.getElementById('productsGrid');
+      grid.innerHTML = itemsToRender.map(p => `
+        <div class="product-card">
+          <div class="product-image">${p.icon}</div>
+          <div class="product-title">${p.name}</div>
+          <div class="product-price">R$ ${p.price.toFixed(2)}</div>
+          <button class="btn-add" onclick="addToCart(${p.id})">Adicionar ao Carrinho</button>
+        </div>
+      `).join('');
+    }
 
-    function handleSearch(event) {
-      event.preventDefault();
-      const input = document.getElementById('searchInput').value.trim();
+    function filterProducts() {
+      const term = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = products.filter(p => p.name.toLowerCase().includes(term));
+      renderProducts(filtered);
+    }
+
+    function addToCart(id) {
+      const item = products.find(p => p.id === id);
+      cart.push(item);
+      updateCart();
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      updateCart();
+    }
+
+    function updateCart() {
+      localStorage.setItem('shop_cart', JSON.stringify(cart));
+      document.getElementById('cart-count').textContent = cart.length;
       
-      // Se for apenas números, abre direto o ID digitado
-      if (/^\d+$/.test(input)) {
-        openGame(input, `Jogo #${input}`);
+      const cartItems = document.getElementById('cartItems');
+      cartItems.innerHTML = cart.map((item, idx) => `
+        <div class="cart-item">
+          <div>
+            <div><strong>${item.name}</strong></div>
+            <div style="color: var(--text-muted)">R$ ${item.price.toFixed(2)}</div>
+          </div>
+          <button onclick="removeFromCart(${idx})" style="background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Remover</button>
+        </div>
+      `).join('');
+
+      const total = cart.reduce((acc, item) => acc + item.price, 0);
+      document.getElementById('cartTotal').textContent = total.toFixed(2);
+    }
+
+    function toggleCart() {
+      document.getElementById('cartModal').classList.toggle('active');
+    }
+
+    function checkout() {
+      if (cart.length === 0) {
+        alert('Seu carrinho está vazio!');
         return;
       }
-
-      // Se for texto, filtra os jogos da lista
-      const filtered = defaultGames.filter(g => g.title.toLowerCase().includes(input.toLowerCase()));
-      if (filtered.length > 0) {
-        renderGames(filtered);
-      } else {
-        // Se não achou na lista base, tenta abrir como busca direta
-        gamesGrid.innerHTML = `<div class="status-msg">Pesquisando por "${input}"... Clique abaixo para testar diretamente:</div>`;
-        const customCard = document.createElement('div');
-        customCard.className = 'game-card';
-        customCard.onclick = () => openGame(input, input);
-        customCard.innerHTML = `
-          <img src="https://scratch.mit.edu/images/scratch-og.png" alt="${input}">
-          <div class="game-info">
-            <h3>${input}</h3>
-            <button class="btn-play">Jogar / Abrir</button>
-          </div>
-        `;
-        gamesGrid.appendChild(customCard);
-      }
+      
+      const itemsList = cart.map(i => `- ${i.name} (R$ ${i.price.toFixed(2)})`).join('\n');
+      const total = cart.reduce((acc, item) => acc + item.price, 0);
+      const message = `Olá! Gostaria de finalizar meu pedido:\n\n${itemsList}\n\n*Total: R$ ${total.toFixed(2)}*`;
+      
+      // Abre direto com a mensagem pronta no WhatsApp
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
     }
 
-    function renderGames(list) {
-      gamesGrid.innerHTML = '';
-      list.forEach(game => {
-        const card = document.createElement('div');
-        card.className = 'game-card';
-        card.onclick = () => openGame(game.id, game.title);
-
-        const thumbnail = `https://uploads.scratch.mit.edu/projects/thumbnails/${game.id}.png`;
-
-        card.innerHTML = `
-          <img src="${thumbnail}" alt="${game.title}" onerror="this.src='https://scratch.mit.edu/images/scratch-og.png'">
-          <div class="game-info">
-            <h3>${game.title}</h3>
-            <button class="btn-play">Jogar Agora</button>
-          </div>
-        `;
-        gamesGrid.appendChild(card);
-      });
-    }
-
-    function openGame(id, title) {
-      modalTitle.innerText = title;
-      // Player via TurboWarp (sem bloqueios de CORS e com performance turbinada)
-      scratchPlayer.src = `https://turbowarp.org/${id}/embed?autoplay=true`;
-      modal.style.display = 'flex';
-    }
-
-    function closeGame() {
-      modal.style.display = 'none';
-      scratchPlayer.src = '';
-    }
-
-    window.onclick = function(event) {
-      if (event.target === modal) {
-        closeGame();
-      }
-    };
+    // Inicialização
+    renderProducts();
+    updateCart();
   </script>
 </body>
 </html>
+
