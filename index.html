@@ -3,686 +3,844 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OmniAI - MultiModal & Game Studio</title>
+  <title>Studio Block Game Engine 2D</title>
   
-  <!-- Font Awesome para Ícones -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Carregando a biblioteca Google Blockly -->
+  <script src="https://unpkg.com/blockly/blockly.min.js"></script>
 
   <style>
     :root {
-      --bg-main: #0f172a;
-      --bg-side: #1e293b;
-      --bg-card: #334155;
-      --accent: #6366f1;
-      --accent-hover: #4f46e5;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
-      --border: #475569;
-      --user-msg: #3b82f6;
-      --ai-msg: #1e293b;
+      --bg-dark: #11111b;
+      --panel-bg: #1e1e2e;
+      --header-bg: #181825;
+      --accent-green: #a6e3a1;
+      --accent-red: #f38ba8;
+      --border-color: #313244;
+      --text-color: #cdd6f4;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     body {
       display: flex;
+      flex-direction: column;
       height: 100vh;
-      background-color: var(--bg-main);
-      color: var(--text);
+      background-color: var(--bg-dark);
+      color: var(--text-color);
       overflow: hidden;
     }
 
-    /* Sidebar Sidebar Left */
-    aside {
-      width: 280px;
-      background-color: var(--bg-side);
-      border-right: 1px solid var(--border);
+    /* Cabeçalho */
+    header {
       display: flex;
-      flex-direction: column;
-      padding: 16px;
-      gap: 16px;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: var(--header-bg);
+      border-bottom: 2px solid var(--border-color);
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
+    }
+
+    .brand h1 {
       font-size: 20px;
-      font-weight: bold;
-      color: var(--accent);
+      color: #fab387;
     }
 
-    .btn-new-chat {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      padding: 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: background 0.2s;
-    }
-
-    .btn-new-chat:hover {
-      background: var(--accent-hover);
-    }
-
-    .history-list {
-      flex: 1;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .history-item {
-      padding: 10px;
-      border-radius: 6px;
-      background: rgba(255, 255, 255, 0.05);
-      cursor: pointer;
-      font-size: 14px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .history-item:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    /* Main Content Area */
-    main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-
-    /* Header Nav Tabs */
-    header {
-      height: 60px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px;
-      background-color: var(--bg-side);
-    }
-
-    .nav-tabs {
+    .controls-bar {
       display: flex;
       gap: 12px;
+      align-items: center;
     }
 
-    .tab-btn {
-      background: none;
+    .btn {
       border: none;
-      color: var(--text-muted);
       padding: 8px 16px;
+      font-size: 14px;
+      font-weight: bold;
       border-radius: 6px;
       cursor: pointer;
-      font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      transition: opacity 0.2s;
     }
 
-    .tab-btn.active {
-      background: var(--bg-card);
-      color: var(--text);
-    }
+    .btn:hover { opacity: 0.85; }
+    .btn-run { background-color: var(--accent-green); color: #11111b; }
+    .btn-stop { background-color: var(--accent-red); color: #11111b; }
 
-    .status-badge {
+    /* Layout Principal */
+    .app-container {
       display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      color: #10b981;
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      background-color: #10b981;
-      border-radius: 50%;
-      box-shadow: 0 0 8px #10b981;
-    }
-
-    /* Container Views */
-    .view-container {
       flex: 1;
-      position: relative;
-      overflow: hidden;
+      height: calc(100vh - 60px);
     }
 
-    .view-panel {
-      position: absolute;
-      inset: 0;
-      display: none;
-      flex-direction: column;
-    }
-
-    .view-panel.active {
-      display: flex;
-    }
-
-    /* Chat View */
-    .chat-messages {
+    /* Editor de Blocos (Blockly) */
+    #blocklyDiv {
       flex: 1;
-      padding: 24px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .message {
-      display: flex;
-      gap: 16px;
-      max-width: 80%;
-      padding: 14px 18px;
-      border-radius: 12px;
-      font-size: 15px;
-      line-height: 1.5;
-    }
-
-    .message.user {
-      align-self: flex-end;
-      background-color: var(--user-msg);
-      border-bottom-right-radius: 2px;
-    }
-
-    .message.ai {
-      align-self: flex-start;
-      background-color: var(--ai-msg);
-      border: 1px solid var(--border);
-      border-bottom-left-radius: 2px;
-    }
-
-    .message img {
-      max-width: 100%;
-      border-radius: 8px;
-      margin-top: 10px;
-    }
-
-    /* Chat Input Bar */
-    .chat-input-area {
-      padding: 16px 24px;
-      border-top: 1px solid var(--border);
-      background-color: var(--bg-side);
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .input-wrapper {
-      flex: 1;
-      position: relative;
-    }
-
-    .chat-input-area input {
-      width: 100%;
-      background: var(--bg-main);
-      border: 1px solid var(--border);
-      padding: 14px 16px;
-      padding-right: 45px;
-      border-radius: 8px;
-      color: var(--text);
-      font-size: 15px;
-      outline: none;
-    }
-
-    .chat-input-area input:focus {
-      border-color: var(--accent);
-    }
-
-    .btn-send {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      padding: 14px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    /* Game View Panel */
-    .game-view {
-      display: flex;
       height: 100%;
     }
 
-    .game-canvas-area {
+    /* Painel do Jogo & Sprites */
+    .game-panel {
+      width: 480px;
+      background-color: var(--panel-bg);
+      display: flex;
+      flex-direction: column;
+      border-left: 2px solid var(--border-color);
+      padding: 15px;
+      gap: 15px;
+    }
+
+    .stage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .stage-container {
+      position: relative;
+      width: 450px;
+      height: 350px;
+      background-color: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid var(--border-color);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Indicador de Score / HUD */
+    .hud-overlay {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 14px;
+      color: #f9e2af;
+      pointer-events: none;
+    }
+
+    /* Gerenciador de Sprites */
+    .sprites-manager {
       flex: 1;
+      background-color: var(--header-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sprites-manager h3 {
+      font-size: 14px;
+      color: #a6adc8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .sprites-list {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 5px;
+    }
+
+    .sprite-card {
+      background: var(--panel-bg);
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px;
+      width: 80px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      background-color: #000;
-      position: relative;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
     }
 
-    #aiGameCanvas {
-      background: #111;
-      border-radius: 8px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.8);
+    .sprite-card.active {
+      border-color: #89b4fa;
+      background-color: #313244;
     }
 
-    .game-sidebar {
-      width: 320px;
-      background: var(--bg-side);
-      border-left: 1px solid var(--border);
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+    .sprite-card img {
+      width: 40px;
+      height: 40px;
     }
 
-    .code-preview {
-      flex: 1;
-      background: var(--bg-main);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 10px;
-      font-family: monospace;
+    .sprite-card span {
       font-size: 12px;
-      color: #38bdf8;
-      overflow-y: auto;
-      white-space: pre-wrap;
-    }
-
-    /* Gallery / Image Generator View */
-    .image-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 16px;
-      padding: 24px;
-      overflow-y: auto;
-    }
-
-    .image-card {
-      background: var(--bg-card);
-      border-radius: 8px;
+      white-space: nowrap;
       overflow: hidden;
-      border: 1px solid var(--border);
-    }
-
-    .image-card img {
+      text-overflow: ellipsis;
       width: 100%;
-      height: 160px;
-      object-fit: cover;
-    }
-
-    .image-card p {
-      padding: 8px;
-      font-size: 12px;
-      color: var(--text-muted);
+      text-align: center;
     }
   </style>
 </head>
 <body>
 
-  <!-- Sidebar Lateral -->
-  <aside>
+  <header>
     <div class="brand">
-      <i class="fa-solid fa-brain"></i> OmniAI Studio
+      <h1>🎮 Studio Engine 2D</h1>
     </div>
-    <button class="btn-new-chat" id="newChatBtn">
-      <i class="fa-solid fa-plus"></i> Novo Chat
-    </button>
-    <div class="history-list" id="historyList">
-      <!-- Histórico gerado via JS -->
+    <div class="controls-bar">
+      <button class="btn btn-run" id="runBtn">🟢 Rodar Jogo</button>
+      <button class="btn btn-stop" id="stopBtn">🛑 Parar</button>
+      <select id="bgSelect" style="padding: 6px; border-radius: 4px; background: #313244; color: #fff; border: 1px solid #45475a;">
+        <option value="space">Cenário: Espaço</option>
+        <option value="forest">Cenário: Floresta</option>
+        <option value="grid">Cenário: Grid</option>
+      </select>
     </div>
-  </aside>
+  </header>
 
-  <!-- Painel Principal -->
-  <main>
-    <header>
-      <div class="nav-tabs">
-        <button class="tab-btn active" data-tab="chatView">
-          <i class="fa-solid fa-comments"></i> Chat & IA
-        </button>
-        <button class="tab-btn" data-tab="gameView">
-          <i class="fa-solid fa-gamepad"></i> Jogo Gerado
-        </button>
-        <button class="tab-btn" data-tab="galleryView">
-          <i class="fa-solid fa-image"></i> Galeria de Imagens
-        </button>
-      </div>
-      <div class="status-badge">
-        <div class="status-dot"></div> Modelo Conectado
-      </div>
-    </header>
+  <main class="app-container">
+    <!-- Editor Blockly -->
+    <div id="blocklyDiv"></div>
 
-    <div class="view-container">
-      
-      <!-- 1. ABA CHAT -->
-      <div class="view-panel active" id="chatView">
-        <div class="chat-messages" id="chatMessages">
-          <div class="message ai">
-            Olá! Sou a OmniAI. Posso conversar com você, gerar imagens instantâneas ou criar jogos 2D em tempo real. O que vamos criar hoje?
-          </div>
-        </div>
-        <div class="chat-input-area">
-          <div class="input-wrapper">
-            <input type="text" id="userInput" placeholder="Digite uma mensagem, peça uma imagem ('gerar imagem de...') ou jogo ('criar jogo de...')..." />
-          </div>
-          <button class="btn-send" id="sendBtn">
-            <i class="fa-solid fa-paper-plane"></i> Enviar
-          </button>
-        </div>
+    <!-- Painel Lateral: Palco e Gerenciador de Personagens -->
+    <aside class="game-panel">
+      <div class="stage-header">
+        <h2>Palco</h2>
       </div>
 
-      <!-- 2. ABA JOGO (CANVAS & CÓDIGO) -->
-      <div class="view-panel" id="gameView">
-        <div class="game-view">
-          <div class="game-canvas-area">
-            <canvas id="aiGameCanvas" width="600" height="400"></canvas>
-          </div>
-          <div class="game-sidebar">
-            <h3>Código do Jogo Gerado</h3>
-            <div class="code-preview" id="codePreview">// Aguardando geração de código de jogo...</div>
-            <button class="btn-new-chat" id="restartGameBtn">
-              <i class="fa-solid fa-rotate-right"></i> Reiniciar Jogo
-            </button>
-          </div>
-        </div>
+      <div class="stage-container">
+        <canvas id="gameCanvas" width="450" height="350"></canvas>
+        <div class="hud-overlay" id="hudScore">Pontos: 0</div>
       </div>
 
-      <!-- 3. ABA GALERIA DE IMAGENS -->
-      <div class="view-panel" id="galleryView">
-        <div class="image-grid" id="imageGrid">
-          <!-- Imagens salvas entram aqui -->
-        </div>
+      <div class="sprites-manager">
+        <h3>Personagens (Sprites)</h3>
+        <div class="sprites-list" id="spritesList"></div>
       </div>
-
-    </div>
+    </aside>
   </main>
 
+  <!-- Caixa de Ferramentas da Linguagem em Blocos -->
+  <xml id="toolbox" style="display: none">
+    <category name="Eventos" colour="#FFBF00">
+      <block type="event_when_flag_clicked"></block>
+      <block type="event_when_key_pressed"></block>
+    </category>
+    <category name="Movimento" colour="#4C97FF">
+      <block type="move_steps"></block>
+      <block type="turn_right"></block>
+      <block type="goto_xy"></block>
+      <block type="jump"></block>
+      <block type="bounce_on_edge"></block>
+    </category>
+    <category name="Aparência" colour="#9966FF">
+      <block type="say_bubble"></block>
+      <block type="set_size"></block>
+      <block type="change_color"></block>
+    </category>
+    <category name="Som" colour="#D15B8C">
+      <block type="play_sound"></block>
+    </category>
+    <category name="Controle" colour="#FFAB19">
+      <block type="control_forever"></block>
+      <block type="control_repeat"></block>
+      <block type="control_if"></block>
+      <block type="control_wait"></block>
+    </category>
+    <category name="Sensoriamento" colour="#4CBFE6">
+      <block type="sensor_touching_edge"></block>
+      <block type="sensor_key_pressed"></block>
+    </category>
+    <category name="Pontuação" colour="#FF6680">
+      <block type="change_score"></block>
+      <block type="set_score"></block>
+    </category>
+  </xml>
+
   <script>
-    // --- ESTADO GLOBAL DA IA E APLICAÇÃO ---
-    const state = {
-      currentTab: 'chatView',
-      messages: [],
-      generatedImages: [],
-      currentGameLoop: null,
-      gameScript: null
+    // --- 1. CONFIGURAÇÃO DOS SPRITES & RECURSOS VISUAIS ---
+    const SPRITE_DATA = {
+      cat: {
+        name: "Gato",
+        icon: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%23ff9e3b'/><circle cx='35' cy='40' r='6' fill='%23fff'/><circle cx='65' cy='40' r='6' fill='%23fff'/><circle cx='35' cy='40' r='3' fill='%23000'/><circle cx='65' cy='40' r='3' fill='%23000'/><polygon points='50,48 45,55 55,55' fill='%23e85d04'/><path d='M 35 65 Q 50 75 65 65' stroke='%23000' stroke-width='4' fill='none'/><polygon points='20,20 35,10 40,28' fill='%23ff9e3b'/><polygon points='80,20 65,10 60,28' fill='%23ff9e3b'/></svg>"
+      },
+      rocket: {
+        name: "Foguete",
+        icon: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50,10 Q75,30 75,70 L25,70 Q25,30 50,10 Z' fill='%23ef4444'/><circle cx='50' cy='45' r='12' fill='%2338bdf8'/><polygon points='25,70 10,90 25,85' fill='%23f97316'/><polygon points='75,70 90,90 75,85' fill='%23f97316'/><polygon points='40,70 50,95 60,70' fill='%23eab308'/></svg>"
+      },
+      robot: {
+        name: "Robô",
+        icon: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='20' y='25' width='60' height='50' rx='8' fill='%2394a3b8'/><rect x='30' y='35' width='15' height='15' rx='3' fill='%2322c55e'/><rect x='55' y='35' width='15' height='15' rx='3' fill='%2322c55e'/><rect x='35' y='60' width='30' height='6' fill='%23334155'/><line x1='50' y1='25' x2='50' y2='10' stroke='%2364748b' stroke-width='4'/><circle cx='50' cy='8' r='6' fill='%23ef4444'/></svg>"
+      },
+      ball: {
+        name: "Bola",
+        icon: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%23a855f7'/><circle cx='35' cy='35' r='10' fill='%23c084fc'/></svg>"
+      }
     };
 
-    // DOM Elements
-    const chatMessages = document.getElementById('chatMessages');
-    const userInput = document.getElementById('userInput');
-    const sendBtn = document.getElementById('sendBtn');
-    const tabBtns = document.querySelectorAll('.tab-btn');
-    const viewPanels = document.querySelectorAll('.view-panel');
-    const imageGrid = document.getElementById('imageGrid');
-    const gameCanvas = document.getElementById('aiGameCanvas');
-    const ctx = gameCanvas.getContext('2d');
-    const codePreview = document.getElementById('codePreview');
+    // Estado da Aplicação
+    const gameState = {
+      score: 0,
+      isRunning: false,
+      activeSpriteKey: 'cat',
+      pressedKeys: {},
+      sprites: {
+        cat: { x: 225, y: 175, angle: 0, size: 50, colorFilter: 0, say: "", visible: true, vy: 0, isGrounded: true },
+        rocket: { x: 100, y: 100, angle: 0, size: 50, colorFilter: 0, say: "", visible: true, vy: 0, isGrounded: true },
+        robot: { x: 350, y: 100, angle: 0, size: 50, colorFilter: 0, say: "", visible: true, vy: 0, isGrounded: true },
+        ball: { x: 100, y: 250, angle: 0, size: 40, colorFilter: 0, say: "", visible: true, vy: 0, isGrounded: true }
+      },
+      workspaces: {}
+    };
 
-    // --- TROCA DE ABAS ---
-    tabBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        tabBtns.forEach(b => b.classList.remove('active'));
-        viewPanels.forEach(p => p.classList.remove('active'));
-        
-        btn.classList.add('active');
-        const targetTab = btn.getAttribute('data-tab');
-        document.getElementById(targetTab).classList.add('active');
-        state.currentTab = targetTab;
-      });
+    // Carregar Imagens dos Sprites
+    const loadedImages = {};
+    Object.keys(SPRITE_DATA).forEach(key => {
+      const img = new Image();
+      img.src = SPRITE_DATA[key].icon;
+      loadedImages[key] = img;
     });
 
-    // --- ADICIONAR MENSAGENS AO CHAT ---
-    function appendMessage(sender, text, imageUrl = null) {
-      const msgDiv = document.createElement('div');
-      msgDiv.className = `message ${sender}`;
-      
-      let htmlContent = `<div>${text}</div>`;
-      if (imageUrl) {
-        htmlContent += `<img src="${imageUrl}" alt="Imagem Gerada pela IA" />`;
-      }
-
-      msgDiv.innerHTML = htmlContent;
-      chatMessages.appendChild(msgDiv);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-
-      state.messages.push({ sender, text, imageUrl });
-    }
-
-    // --- MOTOR DE PROCESSAMENTO DA IA (IA MULTIMODAL SIMULADA) ---
-    function processAIRequest(prompt) {
-      const lower = prompt.toLowerCase();
-
-      // 1. COMANDO DE GERAR IMAGEM
-      if (lower.includes('gerar imagem') || lower.includes('desenhe') || lower.includes('imagem de')) {
-        const cleanPrompt = prompt.replace(/(gerar imagem de|desenhe|imagem de)/gi, '').trim();
-        appendMessage('ai', `Gerando imagem para: "${cleanPrompt}"...`);
-
-        // Utiliza API dinâmica de geração de imagens baseada em prompts
-        const encodedPrompt = encodeURIComponent(cleanPrompt || 'futuristic city neon cyber fantasy');
-        const imgUrl = `https://pollinations.ai/p/${encodedPrompt}?width=800&height=600&seed=${Math.floor(Math.random() * 1000)}`;
-
-        setTimeout(() => {
-          appendMessage('ai', `Aqui está a sua imagem gerada:`, imgUrl);
-          
-          // Adiciona à galeria
-          state.generatedImages.push({ prompt: cleanPrompt, url: imgUrl });
-          renderGallery();
-        }, 1500);
-
-      } 
-      // 2. COMANDO DE CRIAR JOGO
-      else if (lower.includes('criar jogo') || lower.includes('jogo de') || lower.includes('game')) {
-        appendMessage('ai', 'Criando e compilando a lógica do jogo 2D em HTML/Canvas...');
-
-        setTimeout(() => {
-          let gameCode = "";
-
-          // Se pedir jogo de nave
-          if (lower.includes('nave') || lower.includes('espaco') || lower.includes('tiro')) {
-            gameCode = generateSpaceGameCode();
-          } 
-          // Se pedir jogo de pular/plataforma ou padrão (Pong/Snake/Clicker)
-          else {
-            gameCode = generateBouncingBallGameCode();
-          }
-
-          state.gameScript = gameCode;
-          codePreview.textContent = gameCode;
-          
-          // Troca automaticamente para a aba do jogo e roda
-          document.querySelector('[data-tab="gameView"]').click();
-          runAIGame(gameCode);
-
-          appendMessage('ai', 'Jogo gerado com sucesso! Mudei para a aba "Jogo Gerado" para você jogar.');
-        }, 1200);
-
-      } 
-      // 3. CONVERSA CONVENCIONAL
-      else {
-        setTimeout(() => {
-          const responses = [
-            "Compreendo perfeitamente. Como posso avançar nisso para você?",
-            "Interessante! Posso transformar essa ideia em um script de jogo 2D ou gerar uma ilustração visual.",
-            "Estou configurado para criar código, sintetizar visuais e processar lógica complexa.",
-            "Isso soa excelente. Se quiser ver isso em ação, me peça para 'gerar uma imagem' ou 'criar um jogo'."
-          ];
-          const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-          appendMessage('ai', randomResponse);
-        }, 800);
-      }
-    }
-
-    // --- ENVIAR MENSAGEM DO USUÁRIO ---
-    function handleSend() {
-      const text = userInput.value.trim();
-      if (!text) return;
-
-      appendMessage('user', text);
-      userInput.value = '';
-
-      processAIRequest(text);
-    }
-
-    sendBtn.addEventListener('click', handleSend);
-    userInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') handleSend();
+    // --- 2. GERENCIAMENTO DE INTERFACE & BLOCKLY ---
+    const workspace = Blockly.inject('blocklyDiv', {
+      toolbox: document.getElementById('toolbox'),
+      scrollbars: true,
+      trashcan: true,
+      zoom: { controls: true, wheel: true }
     });
 
-    // --- RENDERIZAR GALERIA ---
-    function renderGallery() {
-      imageGrid.innerHTML = '';
-      state.generatedImages.forEach(img => {
+    // Renderizar Lista de Sprites
+    const spritesListEl = document.getElementById('spritesList');
+    function renderSpriteSelector() {
+      spritesListEl.innerHTML = '';
+      Object.keys(SPRITE_DATA).forEach(key => {
         const card = document.createElement('div');
-        card.className = 'image-card';
-        card.innerHTML = `<img src="${img.url}"><p>${img.prompt}</p>`;
-        imageGrid.appendChild(card);
+        card.className = `sprite-card ${key === gameState.activeSpriteKey ? 'active' : ''}`;
+        card.innerHTML = `<img src="${SPRITE_DATA[key].icon}"><span>${SPRITE_DATA[key].name}</span>`;
+        card.onclick = () => switchSprite(key);
+        spritesListEl.appendChild(card);
       });
     }
 
-    // --- EXECUTOR DE JOGOS GERADOS PELA IA ---
-    function runAIGame(codeString) {
-      if (state.currentGameLoop) {
-        cancelAnimationFrame(state.currentGameLoop);
+    function switchSprite(key) {
+      // Salvar workspace atual
+      const xml = Blockly.Xml.workspaceToDom(workspace);
+      gameState.workspaces[gameState.activeSpriteKey] = xml;
+
+      gameState.activeSpriteKey = key;
+      renderSpriteSelector();
+
+      // Carregar workspace do novo sprite
+      workspace.clear();
+      if (gameState.workspaces[key]) {
+        Blockly.Xml.domToWorkspace(gameState.workspaces[key], workspace);
       }
-      try {
-        const gameFunction = new Function('canvas', 'ctx', 'state', codeString);
-        gameFunction(gameCanvas, ctx, state);
-      } catch (err) {
-        console.error("Erro na execução do jogo:", err);
+    }
+    renderSpriteSelector();
+
+    // --- 3. CRIAÇÃO DOS BLOCOS CUSTOMIZADOS ---
+    
+    // Eventos
+    Blockly.Blocks['event_when_flag_clicked'] = {
+      init: function() {
+        this.appendDummyInput().appendField("🟢 Quando Clicar em Rodar");
+        this.setNextStatement(true, null);
+        this.setColour(45);
+      }
+    };
+    javascript.javascriptGenerator.forBlock['event_when_flag_clicked'] = () => '// Inicio\n';
+
+    Blockly.Blocks['event_when_key_pressed'] = {
+      init: function() {
+        this.appendDummyInput()
+            .appendField("Quando a tecla")
+            .appendField(new Blockly.FieldDropdown([
+              ["Espaço", "Space"],
+              ["Seta para Cima", "ArrowUp"],
+              ["Seta para Baixo", "ArrowDown"],
+              ["Seta para Esquerda", "ArrowLeft"],
+              ["Seta para Direita", "ArrowRight"]
+            ]), "KEY")
+            .appendField("for pressionada");
+        this.appendStatementInput("DO");
+        this.setColour(45);
+      }
+    };
+    javascript.javascriptGenerator.forBlock['event_when_key_pressed'] = (block, generator) => {
+      const key = block.getFieldValue('KEY');
+      const branch = generator.statementToCode(block, 'DO');
+      return `if (gameState.pressedKeys["${key}"]) {\n${branch}}\n`;
+    };
+
+    // Movimento
+    Blockly.Blocks['move_steps'] = {
+      init: function() {
+        this.appendDummyInput()
+            .appendField("Mover")
+            .appendField(new Blockly.FieldNumber(10), "STEPS")
+            .appendField("passos");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(210);
+      }
+    };
+    javascript.javascriptGenerator.forBlock['move_steps'] = (block) => {
+      const steps = block.getFieldValue('STEPS');
+      return `moveSprite(currentSprite, ${steps});\n`;
+    };
+
+    Blockly.Blocks['turn_right'] = {
+      init: function() {
+        this.appendDummyInput()
+            .appendField("Girar ↻")
+            .appendField(new Blockly.FieldNumber(15), "DEGREES")
+            .appendField("graus");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(210);
+      }
+    };
+    javascript.javascriptGenerator.forBlock['turn_right'] = (block) => {
+      const deg = block.getFieldValue('DEGREES');
+      return `currentSprite.angle += ${deg};\n`;
+    };
+
+    Blockly.Blocks['goto_xy'] = {
+      init: function() {
+        this.appendDummyInput()
+            .appendField("Vá para X:")
+            .appendField(new Blockly.FieldNumber(225), "X")
+            .appendField("Y:")
+            .appendField(new Blockly.FieldNumber(175), "Y");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(210);
+      }
+    };
+    javascript.javascriptGenerator.forBlock['goto_xy'] = (block) => {
+      const x = block.getFieldValue('X');
+      const y = block.getFieldValue('Y');
+      return `currentSprite.x = ${x}; currentSprite.y = ${y};\n`;
+    };
+
+    Blockly.Blocks['jump'] = {
+      init: function() {
+        this.appendDummyInput().appendField("Pular (Gravidade)");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(210);
+      }
+    };
+    javascript.javascriptGenerator.forBlock['jump'] = () => `if(currentSprite.isGrounded) { currentSprite.vy = -12; currentSprite.isGrounded = false; }\n`;
+
+    Blockly.Blocks['bounce_on_edge'] = {
+      init: function() {
+        this.appendDummyInput().appendField("Se tocar na borda, volte");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(210);
+      }
+    };
+    javascript.javascriptGenerator.forBlock['bounce_on_edge'] = () => `bounceIfEdge(currentSprite);\n`;
+
+    // Aparência
+    Blockly.Blocks['say_bubble'] = {
+      init: function() {
+        this.appendDummyInput()
+            .appendField("Dizer")
+            .appendField(new Blockly.FieldTextInput("Olá!"), "TEXT");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(270);
+      }
+    };
+    javascript.javascriptGenerator.forBlock['say_bubble'] = (block) => {
+      const txt = block.getFieldValue('TEXT');
+      return `currentSprite.say = "${txt}";\n`;
+    };
+
+    Blockly.Blocks['set_size'] = {
+      init: function() {
+        this.appendDummyInput()
+            .appendField("Mudar tamanho para")
+            .appendField(new Blockly.FieldNumber(50), "SIZE")
+            .appendField("px");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(270);
+      }
+    };
+    javascript.javascriptGenerator.forBlock['set_size'] = (block) => {
+      const sz = block.getFieldValue('SIZE');
+      return `currentSprite.size = ${sz};\n`;
+    };
+
+    Blockly.Blocks['change_color'] = {
+      init: function() {
+        this.appendDummyInput().appendField("Mudar tom da cor");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(270);
+      }
+    };
+    javascript.javascriptGenerator.forBlock['change_color'] = () => `currentSprite.colorFilter = (currentSprite.colorFilter + 45) % 360;\n`;
+
+    // Som
+    Blockly.Blocks['play_sound'] = {
+      init: function() {
+        this.appendDummyInput()
+            .appendField("Tocar som")
+            .appendField(new Blockly.FieldDropdown([
+              ["Beep", "beep"],
+              ["Pulo", "jump"],
+              ["Moeda", "coin"]
+            ]), "SOUND");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(330);
+      }
+    };
+    javascript.javascriptGenerator.forBlock['play_sound'] = (block) => {
+      const snd = block.getFieldValue('SOUND');
+      return `playSound("${snd}");\n`;
+    };
+
+    // Controle
+    Blockly.Blocks['control_forever'] = {
+      init: function() {
+        this.appendDummyInput().appendField("Sempre (Loop)");
+        this.appendStatementInput("DO");
+        this.setPreviousStatement(true, null);
+        this.setColour(120);
+      }
+    };
+    javascript.javascriptGenerator.forBlock['control_forever'] = (block, generator) => {
+      const branch = generator.statementToCode(block, 'DO');
+      return `// Loop Sempre\n${branch}`;
+    };
+
+    Blockly.Blocks['control_repeat'] = {
+      init: function() {
+        this.appendDummyInput()
+            .appendField("Repetir")
+            .appendField(new Blockly.FieldNumber(10), "TIMES")
+            .appendField("vezes");
+        this.appendStatementInput("DO");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(120);
+      }
+    };
+    javascript.javascriptGenerator.forBlock['control_repeat'] = (block, generator) => {
+      const times = block.getFieldValue('TIMES');
+      const branch = generator.statementToCode(block, 'DO');
+      return `for(let i=0; i<${times}; i++) {\n${branch}}\n`;
+    };
+
+    Blockly.Blocks['control_if'] = {
+      init: function() {
+        this.appendValueInput("CONDITION").setCheck("Boolean").appendField("Se");
+        this.appendStatementInput("DO").appendField("então");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(120);
+      }
+    };
+    javascript.javascriptGenerator.forBlock['control_if'] = (block, generator) => {
+      const cond = generator.valueToCode(block, 'CONDITION', javascript.Order.ATOMIC) || 'false';
+      const branch = generator.statementToCode(block, 'DO');
+      return `if (${cond}) {\n${branch}}\n`;
+    };
+
+    Blockly.Blocks['control_wait'] = {
+      init: function() {
+        this.appendDummyInput()
+            .appendField("Esperar")
+            .appendField(new Blockly.FieldNumber(1), "SEC")
+            .appendField("segundos");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(120);
+      }
+    };
+    javascript.javascriptGenerator.forBlock['control_wait'] = () => `// Espera simulada\n`;
+
+    // Sensoriamento
+    Blockly.Blocks['sensor_touching_edge'] = {
+      init: function() {
+        this.appendDummyInput().appendField("Tocando na borda?");
+        this.setOutput(true, "Boolean");
+        this.setColour(190);
+      }
+    };
+    javascript.javascriptGenerator.forBlock['sensor_touching_edge'] = () => [`isTouchingEdge(currentSprite)`, javascript.Order.ATOMIC];
+
+    Blockly.Blocks['sensor_key_pressed'] = {
+      init: function() {
+        this.appendDummyInput()
+            .appendField("Tecla")
+            .appendField(new Blockly.FieldDropdown([
+              ["Espaço", "Space"],
+              ["Seta para Cima", "ArrowUp"],
+              ["Seta para Baixo", "ArrowDown"],
+              ["Seta para Esquerda", "ArrowLeft"],
+              ["Seta para Direita", "ArrowRight"]
+            ]), "KEY")
+            .appendField("pressionada?");
+        this.setOutput(true, "Boolean");
+        this.setColour(190);
+      }
+    };
+    javascript.javascriptGenerator.forBlock['sensor_key_pressed'] = (block) => {
+      const key = block.getFieldValue('KEY');
+      return [`gameState.pressedKeys["${key}"] === true`, javascript.Order.ATOMIC];
+    };
+
+    // Pontuação
+    Blockly.Blocks['change_score'] = {
+      init: function() {
+        this.appendDummyInput()
+            .appendField("Adicionar")
+            .appendField(new Blockly.FieldNumber(1), "VAL")
+            .appendField("aos pontos");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(340);
+      }
+    };
+    javascript.javascriptGenerator.forBlock['change_score'] = (block) => {
+      const val = block.getFieldValue('VAL');
+      return `gameState.score += ${val}; updateHUD();\n`;
+    };
+
+    Blockly.Blocks['set_score'] = {
+      init: function() {
+        this.appendDummyInput()
+            .appendField("Mudar pontos para")
+            .appendField(new Blockly.FieldNumber(0), "VAL");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(340);
+      }
+    };
+    javascript.javascriptGenerator.forBlock['set_score'] = (block) => {
+      const val = block.getFieldValue('VAL');
+      return `gameState.score = ${val}; updateHUD();\n`;
+    };
+
+
+    // --- 4. MOTOR DE JOGO & RENDERIZAÇÃO (CANVAS) ---
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const hudScore = document.getElementById('hudScore');
+
+    function updateHUD() {
+      hudScore.textContent = `Pontos: ${gameState.score}`;
+    }
+
+    // Sintetizador de Áudio Nativo
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      if (type === 'beep') {
+        osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.1);
+      } else if (type === 'jump') {
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.15);
+      } else if (type === 'coin') {
+        osc.frequency.setValueAtTime(987, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(1318, audioCtx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.25);
       }
     }
 
-    document.getElementById('restartGameBtn').addEventListener('click', () => {
-      if (state.gameScript) runAIGame(state.gameScript);
+    // Funções Auxiliares de Movimento
+    function moveSprite(sprite, steps) {
+      const rad = (sprite.angle * Math.PI) / 180;
+      sprite.x += Math.cos(rad) * steps;
+      sprite.y += Math.sin(rad) * steps;
+    }
+
+    function bounceIfEdge(sprite) {
+      const radius = sprite.size / 2;
+      if (sprite.x - radius <= 0 || sprite.x + radius >= canvas.width) {
+        sprite.angle = 180 - sprite.angle;
+      }
+      if (sprite.y - radius <= 0 || sprite.y + radius >= canvas.height) {
+        sprite.angle = -sprite.angle;
+      }
+    }
+
+    function isTouchingEdge(sprite) {
+      const radius = sprite.size / 2;
+      return (
+        sprite.x - radius <= 0 ||
+        sprite.x + radius >= canvas.width ||
+        sprite.y - radius <= 0 ||
+        sprite.y + radius >= canvas.height
+      );
+    }
+
+    // Desenhar Cenários
+    function drawBackground() {
+      const bg = document.getElementById('bgSelect').value;
+      if (bg === 'space') {
+        ctx.fillStyle = '#0b0d19';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#ffffff';
+        for(let i=0; i<30; i++) {
+          let x = (i * 37) % canvas.width;
+          let y = (i * 73) % canvas.height;
+          ctx.fillRect(x, y, 2, 2);
+        }
+      } else if (bg === 'forest') {
+        ctx.fillStyle = '#1b4332';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#2d6a4f';
+        ctx.fillRect(0, 280, canvas.width, 70);
+      } else {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = '#e2e8f0';
+        for(let x=0; x<canvas.width; x+=30) {
+          ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x, canvas.height); ctx.stroke();
+        }
+        for(let y=0; y<canvas.height; y+=30) {
+          ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width, y); ctx.stroke();
+        }
+      }
+    }
+
+    // Loop Principal de Atualização do Jogo
+    function gameLoop() {
+      drawBackground();
+
+      // Atualizar e Desenhar cada Sprite
+      Object.keys(gameState.sprites).forEach(key => {
+        const sprite = gameState.sprites[key];
+        const img = loadedImages[key];
+
+        // Gravidade e Física Simples
+        sprite.vy += 0.5; // força da gravidade
+        sprite.y += sprite.vy;
+
+        // Colisão com o chão do palco
+        const floor = canvas.height - sprite.size / 2;
+        if (sprite.y >= floor) {
+          sprite.y = floor;
+          sprite.vy = 0;
+          sprite.isGrounded = true;
+        }
+
+        // Limites da Tela
+        const r = sprite.size / 2;
+        sprite.x = Math.max(r, Math.min(canvas.width - r, sprite.x));
+
+        // Executar Código Blockly do Sprite se estiver rodando
+        if (gameState.isRunning && gameState.workspaces[key]) {
+          const currentSprite = sprite;
+          const code = javascript.javascriptGenerator.workspaceToCode(gameState.workspaces[key]);
+          try {
+            eval(code);
+          } catch(e) {
+            console.error("Erro ao executar sprite", key, e);
+          }
+        }
+
+        // Desenhar no Canvas
+        if (sprite.visible) {
+          ctx.save();
+          ctx.translate(sprite.x, sprite.y);
+          ctx.rotate((sprite.angle * Math.PI) / 180);
+          if (sprite.colorFilter > 0) {
+            ctx.filter = `hue-rotate(${sprite.colorFilter}deg)`;
+          }
+          ctx.drawImage(img, -sprite.size/2, -sprite.size/2, sprite.size, sprite.size);
+          ctx.restore();
+
+          // Balão de Fala
+          if (sprite.say) {
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '12px sans-serif';
+            ctx.beginPath();
+            ctx.roundRect(sprite.x - 30, sprite.y - sprite.size/2 - 25, 60, 20, 5);
+            ctx.fill();
+            ctx.fillStyle = '#000000';
+            ctx.textAlign = 'center';
+            ctx.fillText(sprite.say, sprite.x, sprite.y - sprite.size/2 - 11);
+          }
+        }
+      });
+
+      requestAnimationFrame(gameLoop);
+    }
+    gameLoop();
+
+    // --- 5. EVENTOS E CONTROLES DE EXECUÇÃO ---
+    window.addEventListener('keydown', (e) => {
+      gameState.pressedKeys[e.code] = true;
+      gameState.pressedKeys[e.key] = true;
     });
 
-    // --- GERADORES DE CÓDIGO DE JOGO DINÂMICO ---
-    function generateBouncingBallGameCode() {
-      return `
-// Jogo 2D: Bouncing Paddle
-let x = canvas.width / 2;
-let y = canvas.height - 30;
-let dx = 3;
-let dy = -3;
-let ballRadius = 10;
-let paddleHeight = 12;
-let paddleWidth = 90;
-let paddleX = (canvas.width - paddleWidth) / 2;
-let rightPressed = false;
-let leftPressed = false;
+    window.addEventListener('keyup', (e) => {
+      gameState.pressedKeys[e.code] = false;
+      gameState.pressedKeys[e.key] = false;
+    });
 
-document.onkeydown = (e) => {
-  if(e.key === "Right" || e.key === "ArrowRight") rightPressed = true;
-  if(e.key === "Left" || e.key === "ArrowLeft") leftPressed = true;
-};
-document.onkeyup = (e) => {
-  if(e.key === "Right" || e.key === "ArrowRight") rightPressed = false;
-  if(e.key === "Left" || e.key === "ArrowLeft") leftPressed = false;
-};
-
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
-  // Bola
-  ctx.beginPath();
-  ctx.arc(x, y, ballRadius, 0, Math.PI*2);
-  ctx.fillStyle = "#6366f1";
-  ctx.fill();
-  ctx.closePath();
-
-  // Raquete
-  ctx.beginPath();
-  ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
-  ctx.fillStyle = "#10b981";
-  ctx.fill();
-  ctx.closePath();
-
-  // Colisão Paredes
-  if(x + dx > canvas.width - ballRadius || x + dx < ballRadius) dx = -dx;
-  if(y + dy < ballRadius) dy = -dy;
-  else if(y + dy > canvas.height - ballRadius) {
-    if(x > paddleX && x < paddleX + paddleWidth) {
-      dy = -dy;
-    } else {
-      x = canvas.width/2; y = canvas.height-30; dy = -3; // Reset
-    }
-  }
-
-  if(rightPressed && paddleX < canvas.width - paddleWidth) paddleX += 6;
-  if(leftPressed && paddleX > 0) paddleX -= 6;
-
-  x += dx;
-  y += dy;
-
-  state.currentGameLoop = requestAnimationFrame(draw);
-}
-draw();
-      `.trim();
+    // Salvar workspace do sprite ativo
+    function syncCurrentWorkspace() {
+      const xml = Blockly.Xml.workspaceToDom(workspace);
+      gameState.workspaces[gameState.activeSpriteKey] = xml;
     }
 
-    function generateSpaceGameCode() {
-      return `
-// Jogo 2D: Space Shooter Simple
-let player = { x: 270, y: 350, w: 40, h: 20, speed: 5 };
-let bullets = [];
-let enemies = [];
-let keys = {};
+    document.getElementById('runBtn').addEventListener('click', () => {
+      syncCurrentWorkspace();
+      gameState.isRunning = true;
+    });
 
-document.onkeydown = (e) => keys[e.code] = true;
-document.onkeyup = (e) => keys[e.code] = false;
-
-function spawnEnemy() {
-  if(Math.random() < 0.03) {
-    enemies.push({ x: Math.random() * (canvas.width - 30), y: 0, w: 30, h: 20 });
-  }
-}
-
-function update() {
-  if(keys['ArrowLeft'] && player.x > 0) player.x -= player.speed;
-  if(keys['ArrowRight'] && player.x < canvas.width - player.w) player.x += player.speed;
-  if(keys['Space']) {
-    bullets.push({ x: player.x + player.w/2 - 2, y: player.y, w: 4, h: 10 });
-    keys['Space'] = false;
-  }
-
-  bullets.forEach(b => b.y -= 7);
-  enemies.forEach(e => e.y += 2);
-
-  spawnEnemy();
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
-  // Player
-  ctx.fillStyle = '#38bdf8';
-  ctx.fillRect(player.x, player.y, player.w, player.h);
-
-  // Bullets
-  ctx.fillStyle = '#f59e0b';
-  bullets.forEach(b => ctx.fillRect(b.x, b.y, b.w, b.h));
-
-  // Enemies
-  ctx.fillStyle = '#ef4444';
-  enemies.forEach(e => ctx.fillRect(e.x, e.y, e.w, e.h));
-
-  state.currentGameLoop = requestAnimationFrame(update);
-}
-update();
-      `.trim();
-    }
+    document.getElementById('stopBtn').addEventListener('click', () => {
+      gameState.isRunning = false;
+      // Resetar Posições
+      gameState.sprites.cat.x = 225; gameState.sprites.cat.y = 175;
+      gameState.sprites.rocket.x = 100; gameState.sprites.rocket.y = 100;
+      gameState.sprites.robot.x = 350; gameState.sprites.robot.y = 100;
+      gameState.sprites.ball.x = 100; gameState.sprites.ball.y = 250;
+      Object.values(gameState.sprites).forEach(s => {
+        s.angle = 0; s.say = ""; s.vy = 0;
+      });
+    });
   </script>
 </body>
 </html>
