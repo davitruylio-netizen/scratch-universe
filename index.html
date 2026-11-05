@@ -1,1236 +1,328 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#080d1c">
-  <meta name="description" content="Scratch Universe: descubra jogos incríveis criados pela comunidade Scratch.">
-  <title>Scratch Universe | Explore novos mundos</title>
-
+  <title>Multiverso de Jogos Scratch</title>
   <style>
     :root {
-      --bg: #080d1c;
-      --surface: #111a2e;
-      --surface-light: #17243d;
-      --border: #263955;
-      --text: #f5f8ff;
-      --muted: #94a5c1;
-      --cyan: #65d9ff;
-      --purple: #9a83ff;
-      --blue: #258dff;
-      --radius: 17px;
+      --bg-color: #0b0d17;
+      --card-bg: #16192b;
+      --accent-color: #4e54c8;
+      --accent-hover: #8f94fb;
+      --text-color: #ffffff;
+      --text-dim: #a0a5c0;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-    }
-
-    html {
-      scroll-behavior: smooth;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
       min-height: 100vh;
-      overflow-x: hidden;
-      background: var(--bg);
-      color: var(--text);
-      font-family: Arial, Helvetica, sans-serif;
+      display: flex;
+      flex-direction: column;
     }
-
-    button, input, select {
-      font: inherit;
-    }
-
-    button {
-      cursor: pointer;
-    }
-
-    a {
-      color: inherit;
-    }
-
-    /* FUNDO ESPACIAL */
-
-    .background-glow {
-      position: fixed;
-      inset: 0;
-      z-index: -3;
-      pointer-events: none;
-      background:
-        radial-gradient(ellipse at 15% 15%, #164b7933, transparent 38%),
-        radial-gradient(ellipse at 85% 45%, #683b8c2b, transparent 40%),
-        radial-gradient(ellipse at 50% 100%, #145c7730, transparent 45%);
-    }
-
-    .stars {
-      position: fixed;
-      inset: 0;
-      z-index: -2;
-      pointer-events: none;
-      opacity: .65;
-      background-image:
-        radial-gradient(2px 2px at 20px 30px, white, transparent),
-        radial-gradient(1px 1px at 90px 80px, #8adfff, transparent),
-        radial-gradient(2px 2px at 160px 150px, white, transparent),
-        radial-gradient(1px 1px at 220px 40px, white, transparent),
-        radial-gradient(1px 1px at 260px 120px, #9b8aff, transparent);
-      background-size: 290px 210px;
-      animation: starMovement 45s linear infinite;
-    }
-
-    @keyframes starMovement {
-      from { transform: translateY(0); }
-      to { transform: translateY(-210px); }
-    }
-
-    /* CABEÇALHO */
 
     header {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      min-height: 76px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 7%;
-      border-bottom: 1px solid #ffffff12;
-      background: #080e20e8;
-      backdrop-filter: blur(16px);
-    }
-
-    .logo {
-      color: var(--cyan);
-      font-size: 21px;
-      font-weight: 900;
-      letter-spacing: 1px;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-
-    .logo span {
-      color: white;
-    }
-
-    nav {
-      display: flex;
-      align-items: center;
-      gap: 27px;
-    }
-
-    nav a {
-      color: #b1bfd5;
-      font-size: 14px;
-      text-decoration: none;
-      transition: color .2s;
-    }
-
-    nav a:hover {
-      color: var(--cyan);
-    }
-
-    /* APRESENTAÇÃO */
-
-    .hero {
-      padding: 90px 20px 65px;
+      background: linear-gradient(135deg, #4e54c8, #8f94fb);
+      padding: 2rem 1rem;
       text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
 
-    .hero-tag {
-      display: inline-block;
-      padding: 9px 17px;
-      border: 1px solid #3976a9;
-      border-radius: 30px;
-      background: #102b48;
-      color: var(--cyan);
-      font-size: 11px;
-      letter-spacing: 2px;
+    header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
 
-    .hero h1 {
-      margin: 25px 0 15px;
-      font-size: clamp(39px, 7vw, 76px);
-      font-weight: 900;
-      letter-spacing: -2px;
+    header p {
+      color: #e0e0e0;
+      margin-bottom: 1.5rem;
     }
 
-    .gradient-text {
-      background: linear-gradient(90deg, #67d9ff, #a38aff);
-      background-clip: text;
-      -webkit-background-clip: text;
-      color: transparent;
+    .search-container {
+      max-width: 500px;
+      margin: 0 auto;
     }
 
-    .hero-description {
-      color: #a3b2ca;
-      font-size: 17px;
-      line-height: 1.7;
-    }
-
-    /* PESQUISA */
-
-    .search-area {
-      width: min(680px, 100%);
-      margin: 35px auto 0;
-    }
-
-    .search-box {
-      display: flex;
-      padding: 7px;
-      border: 1px solid #344b70;
-      border-radius: 15px;
-      background: #101a30;
-      box-shadow: 0 0 40px #208bff18;
-      transition: border .2s, box-shadow .2s;
-    }
-
-    .search-box:focus-within {
-      border-color: var(--cyan);
-      box-shadow: 0 0 35px #208bff30;
-    }
-
-    .search-box input {
-      flex: 1;
-      min-width: 0;
-      padding: 15px;
+    .search-container input {
+      width: 100%;
+      padding: 0.8rem 1.2rem;
+      border-radius: 25px;
       border: none;
+      font-size: 1rem;
       outline: none;
-      background: transparent;
-      color: white;
-      font-size: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
 
-    .search-box input::placeholder {
-      color: #7486a4;
+    main {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      flex-grow: 1;
+      width: 100%;
     }
 
-    .search-button {
-      padding: 0 23px;
-      border: none;
-      border-radius: 10px;
-      background: linear-gradient(120deg, #168bff, #7864ff);
-      color: white;
-      font-weight: bold;
-      transition: filter .2s, transform .2s;
-    }
-
-    .search-button:hover {
-      filter: brightness(1.15);
-      transform: scale(1.02);
-    }
-
-    .search-hint {
-      margin-top: 12px;
-      color: #71839f;
-      font-size: 12px;
-    }
-
-    /* CONTEÚDO */
-
-    .content {
-      width: min(1250px, 100%);
-      margin: auto;
-      padding: 20px 25px 85px;
-    }
-
-    .section-heading {
-      margin-bottom: 8px;
-      font-size: 25px;
-    }
-
-    .section-description {
-      margin-bottom: 23px;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
-    /* CATEGORIAS */
-
-    .categories {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 11px;
-      margin: 25px 0 42px;
-    }
-
-    .category {
-      padding: 11px 17px;
-      border: 1px solid #293c5b;
-      border-radius: 30px;
-      background: #111d33;
-      color: #b7c7df;
-      transition: .2s;
-    }
-
-    .category:hover,
-    .category.active {
-      border-color: var(--cyan);
-      background: #173d64;
-      color: white;
-    }
-
-    /* RESULTADOS */
-
-    .results-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 15px;
-      margin: 35px 0 20px;
-    }
-
-    .results-count {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .sort-select {
-      max-width: 190px;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      outline: none;
-      background: var(--surface);
-      color: white;
-    }
-
-    .games {
+    .games-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
-      gap: 22px;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
     }
-
-    /* CARTÕES */
 
     .game-card {
-      min-width: 0;
+      background-color: var(--card-bg);
+      border-radius: 12px;
       overflow: hidden;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: var(--surface);
-      transition: transform .25s, border-color .25s, box-shadow .25s;
-      animation: cardAppear .35s ease both;
-    }
-
-    @keyframes cardAppear {
-      from {
-        opacity: 0;
-        transform: translateY(12px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
     }
 
     .game-card:hover {
       transform: translateY(-5px);
-      border-color: #62cfff;
-      box-shadow: 0 12px 35px #168bff20;
+      box-shadow: 0 8px 25px rgba(143, 148, 251, 0.4);
     }
 
-    .game-image-container {
-      position: relative;
-      overflow: hidden;
-      aspect-ratio: 4 / 3;
-      background: #17243b;
-    }
-
-    .game-image {
+    .game-card img {
       width: 100%;
-      height: 100%;
-      display: block;
+      height: 180px;
       object-fit: cover;
-      transition: transform .4s;
-    }
-
-    .game-card:hover .game-image {
-      transform: scale(1.05);
-    }
-
-    .game-image-placeholder {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #8297b6;
-      font-size: 40px;
     }
 
     .game-info {
-      padding: 17px;
-    }
-
-    .game-title {
-      margin-bottom: 9px;
-      overflow: hidden;
-      font-size: 17px;
-      line-height: 1.4;
-      text-overflow: ellipsis;
-    }
-
-    .game-author {
-      margin-bottom: 13px;
-      color: #9bacc7;
-      font-size: 12px;
-      overflow-wrap: anywhere;
-    }
-
-    .game-stats {
+      padding: 1rem;
       display: flex;
-      flex-wrap: wrap;
-      gap: 13px;
-      color: #a8b8d0;
-      font-size: 12px;
+      flex-direction: column;
+      flex-grow: 1;
     }
 
-    .game-link {
-      display: block;
-      margin-top: 16px;
-      padding: 11px;
-      border: 1px solid #345b86;
-      border-radius: 9px;
-      background: #173454;
-      color: #9cddff;
-      font-size: 12px;
+    .game-info h3 {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .game-info p {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      flex-grow: 1;
+      margin-bottom: 1rem;
+    }
+
+    .btn-play {
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      padding: 0.6rem;
+      border-radius: 6px;
       font-weight: bold;
+      cursor: pointer;
       text-align: center;
-      text-decoration: none;
-      transition: .2s;
+      transition: background 0.2s;
     }
 
-    .game-link:hover {
-      border-color: var(--cyan);
-      background: #20517c;
-      color: white;
+    .btn-play:hover {
+      background-color: var(--accent-hover);
     }
 
-    /* ESTADOS */
-
-    .state-box {
-      grid-column: 1 / -1;
-      padding: 55px 20px;
-      border: 1px dashed #304866;
-      border-radius: 15px;
-      color: var(--muted);
-      text-align: center;
-    }
-
-    .state-icon {
-      margin-bottom: 13px;
-      font-size: 35px;
-    }
-
-    .state-box h3 {
-      margin-bottom: 9px;
-      color: white;
-      font-size: 19px;
-    }
-
-    .state-box p {
-      font-size: 13px;
-      line-height: 1.6;
-    }
-
-    .load-more-container {
+    /* Modal (Player de jogo) */
+    .modal {
       display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.85);
+      z-index: 1000;
       justify-content: center;
-      margin-top: 35px;
+      align-items: center;
+      padding: 1rem;
     }
 
-    .load-more-button {
-      padding: 13px 25px;
-      border: 1px solid #426d9c;
-      border-radius: 10px;
-      background: #173454;
+    .modal-content {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 860px;
+      padding: 1.5rem;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 2rem;
+      color: var(--text-dim);
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .close-btn:hover {
       color: white;
-      font-weight: bold;
     }
 
-    .load-more-button:hover {
-      background: #20517c;
+    .iframe-container {
+      width: 100%;
+      height: 0;
+      padding-bottom: 78%; /* Proporção aproximada do player do Scratch */
+      position: relative;
+      margin-top: 1rem;
     }
 
-    .load-more-button:disabled {
-      cursor: wait;
-      opacity: .6;
+    .iframe-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
     }
-
-    /* RODAPÉ */
 
     footer {
-      padding: 30px 20px;
-      border-top: 1px solid #ffffff15;
-      color: #788ba8;
-      font-size: 13px;
       text-align: center;
-      line-height: 1.8;
-    }
-
-    /* RESPONSIVIDADE */
-
-    @media (max-width: 650px) {
-      header {
-        min-height: 65px;
-        padding: 0 16px;
-      }
-
-      .logo {
-        font-size: 16px;
-      }
-
-      nav {
-        gap: 13px;
-      }
-
-      nav a {
-        font-size: 12px;
-      }
-
-      .hero {
-        padding: 65px 17px 45px;
-      }
-
-      .hero-description {
-        font-size: 14px;
-      }
-
-      .content {
-        padding: 20px 15px 60px;
-      }
-
-      .search-button {
-        padding: 0 14px;
-        font-size: 12px;
-      }
-
-      .games {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
-      }
-
-      .game-info {
-        padding: 12px;
-      }
-
-      .game-title {
-        font-size: 14px;
-      }
-
-      .game-stats {
-        gap: 8px;
-        font-size: 10px;
-      }
-
-      .game-link {
-        padding: 10px 5px;
-        font-size: 10px;
-      }
-
-      .results-top {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-    }
-
-    @media (max-width: 360px) {
-      .games {
-        grid-template-columns: 1fr;
-      }
+      padding: 1.5rem;
+      background-color: #080910;
+      color: var(--text-dim);
+      font-size: 0.9rem;
     }
   </style>
 </head>
-
 <body>
 
-  <div class="background-glow"></div>
-  <div class="stars"></div>
-
   <header>
-    <a class="logo" href="#inicio">
-      🌌 SCRATCH <span>UNIVERSE</span>
-    </a>
-
-    <nav>
-      <a href="#inicio">Início</a>
-      <a href="#explorar">Explorar jogos</a>
-    </nav>
+    <h1>Universo Scratch 🚀</h1>
+    <p>Explore e jogue projetos incríveis criados na comunidade</p>
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Pesquisar jogo pelo nome..." onkeyup="filterGames()">
+    </div>
   </header>
 
-  <section class="hero" id="inicio">
-    <div class="hero-tag">✦ UM UNIVERSO DE POSSIBILIDADES ✦</div>
-
-    <h1>
-      DESCUBRA SEU <span class="gradient-text">UNIVERSO</span>
-    </h1>
-
-    <p class="hero-description">
-      Milhares de mundos. Infinitas aventuras.<br>
-      Encontre seu próximo jogo.
-    </p>
-
-    <div class="search-area">
-      <form class="search-box" id="searchForm">
-        <input
-          id="searchInput"
-          type="search"
-          placeholder="Pesquise um jogo ou digite seu ID..."
-          autocomplete="off"
-          aria-label="Pesquisar jogos"
-        >
-        <button class="search-button" type="submit">
-          EXPLORAR
-        </button>
-      </form>
-
-      <p class="search-hint">
-        Pesquise por nome, gênero ou ID de um projeto Scratch.
-      </p>
+  <main>
+    <div class="games-grid" id="gamesGrid">
+      <!-- Os jogos serão gerados via JavaScript -->
     </div>
-  </section>
-
-  <main class="content" id="explorar">
-
-    <h2 class="section-heading">Explore os jogos</h2>
-
-    <p class="section-description">
-      Descubra projetos da comunidade Scratch e encontre sua próxima aventura.
-    </p>
-
-    <div class="categories" id="categories">
-      <button class="category active" data-query="popular games">
-        🎮 Todos
-      </button>
-      <button class="category" data-query="platformer">
-        🏃 Plataforma
-      </button>
-      <button class="category" data-query="horror">
-        👻 Terror
-      </button>
-      <button class="category" data-query="racing">
-        🏎️ Corrida
-      </button>
-      <button class="category" data-query="adventure">
-        ⚔️ Aventura
-      </button>
-      <button class="category" data-query="arcade">
-        🕹️ Arcade
-      </button>
-      <button class="category" data-query="fighting game">
-        🥊 Luta
-      </button>
-    </div>
-
-    <div class="results-top">
-      <div>
-        <h2 class="section-heading" id="resultsTitle">
-          Jogos populares
-        </h2>
-        <p class="results-count" id="resultsCount">
-          Pesquise para descobrir novos jogos.
-        </p>
-      </div>
-
-      <select class="sort-select" id="sortSelect" aria-label="Ordenar jogos">
-        <option value="popular">Mais populares</option>
-        <option value="views">Mais vistos</option>
-        <option value="recent">Mais recentes</option>
-      </select>
-    </div>
-
-    <section class="games" id="games" aria-live="polite">
-      <div class="state-box">
-        <div class="state-icon">🌌</div>
-        <h3>Seu próximo jogo está esperando</h3>
-        <p>
-          Pesquise um nome ou escolha uma categoria para começar a explorar.
-        </p>
-      </div>
-    </section>
-
-    <div class="load-more-container" id="loadMoreContainer">
-      <button class="load-more-button" id="loadMoreButton">
-        CARREGAR MAIS JOGOS
-      </button>
-    </div>
-
   </main>
 
+  <!-- Modal para Jogar -->
+  <div class="modal" id="gameModal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeGame()">&times;</span>
+      <h2 id="modalTitle">Nome do Jogo</h2>
+      <div class="iframe-container">
+        <iframe id="scratchPlayer" src="" frameborder="0" allowtransparency="true" allowfullscreen="true"></iframe>
+      </div>
+    </div>
+  </div>
+
   <footer>
-    <strong>SCRATCH UNIVERSE © 2026</strong><br>
-    Uma plataforma independente para descobrir jogos da comunidade Scratch.<br>
-    Scratch é uma marca do Massachusetts Institute of Technology.
+    <p>Multiverso Scratch &copy; 2026 - Conectando Criadores</p>
   </footer>
 
   <script>
-    "use strict";
+    // LISTA DE JOGOS
+    // Para adicionar mais jogos, basta pegar o ID na URL do Scratch (ex: scratch.mit.edu/projects/10128407/)
+    const games = [
+      {
+        id: "10128407",
+        title: "Paper Minecraft",
+        description: "Uma versão incrível 2D de Minecraft criada totalmente no Scratch.",
+        image: "https://uploads.scratch.mit.edu/projects/thumbnails/10128407.png"
+      },
+      {
+        id: "60917032",
+        title: "Geometry Dash",
+        description: "Desafie seus reflexos nesta recriação do clássico jogo de ritmo.",
+        image: "https://uploads.scratch.mit.edu/projects/thumbnails/60917032.png"
+      },
+      {
+        id: "276660763",
+        title: "Appel",
+        description: "Um dos melhores jogos de plataforma com física fluida do Scratch.",
+        image: "https://uploads.scratch.mit.edu/projects/thumbnails/276660763.png"
+      },
+      {
+        id: "13854124",
+        title: "Flappy Bird",
+        description: "Voe entre os canos e tente fazer a maior pontuação possível.",
+        image: "https://uploads.scratch.mit.edu/projects/thumbnails/13854124.png"
+      }
+    ];
 
-    /* ==========================================
-       CONFIGURAÇÕES
-    ========================================== */
+    const gamesGrid = document.getElementById('gamesGrid');
+    const modal = document.getElementById('gameModal');
+    const scratchPlayer = document.getElementById('scratchPlayer');
+    const modalTitle = document.getElementById('modalTitle');
 
-    const CONFIG = {
-      api: "https://api.scratch.mit.edu",
-      limit: 40,
-      maxPages: 5,
-      requestTimeout: 12000
-    };
-
-    const state = {
-      query: "",
-      mode: "popular",
-      offset: 0,
-      projects: [],
-      loading: false,
-      hasMore: false,
-      requestNumber: 0
-    };
-
-    const elements = {
-      form: document.getElementById("searchForm"),
-      input: document.getElementById("searchInput"),
-      games: document.getElementById("games"),
-      title: document.getElementById("resultsTitle"),
-      count: document.getElementById("resultsCount"),
-      categories: document.getElementById("categories"),
-      sort: document.getElementById("sortSelect"),
-      loadContainer: document.getElementById("loadMoreContainer"),
-      loadButton: document.getElementById("loadMoreButton")
-    };
-
-    /* ==========================================
-       FUNÇÕES AUXILIARES
-    ========================================== */
-
-    function normalizeText(value) {
-      return String(value || "")
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase();
-    }
-
-    function formatNumber(value) {
-      const number = Number(value) || 0;
-
-      return new Intl.NumberFormat("pt-BR", {
-        notation: number >= 10000 ? "compact" : "standard",
-        maximumFractionDigits: 1
-      }).format(number);
-    }
-
-    function showState(icon, title, description) {
-      elements.games.innerHTML = "";
-
-      const box = document.createElement("div");
-      box.className = "state-box";
-
-      const iconElement = document.createElement("div");
-      iconElement.className = "state-icon";
-      iconElement.textContent = icon;
-
-      const heading = document.createElement("h3");
-      heading.textContent = title;
-
-      const paragraph = document.createElement("p");
-      paragraph.textContent = description;
-
-      box.append(iconElement, heading, paragraph);
-      elements.games.appendChild(box);
-    }
-
-    function setLoading(isLoading) {
-      state.loading = isLoading;
-      elements.loadButton.disabled = isLoading;
-
-      elements.loadButton.textContent = isLoading
-        ? "CARREGANDO..."
-        : "CARREGAR MAIS JOGOS";
-    }
-
-    /* ==========================================
-       IDENTIFICAÇÃO DE JOGOS
-    ========================================== */
-
-    function isGameProject(project) {
-      const title = normalizeText(project.title);
-      const description = normalizeText(project.description);
-      const instructions = normalizeText(project.instructions);
-
-      const tags = Array.isArray(project.tags)
-        ? normalizeText(project.tags.join(" "))
-        : "";
-
-      const content = `${title} ${description} ${instructions} ${tags}`;
-
-      const gameWords = [
-        "game", "jogo", "games", "jogos",
-        "platformer", "platform", "plataforma",
-        "rpg", "adventure", "aventura",
-        "horror", "terror", "scary",
-        "racing", "corrida", "race",
-        "arcade", "multiplayer", "survival",
-        "sobrevivencia", "simulator", "simulador",
-        "fighting", "luta", "battle", "batalha",
-        "shooter", "space game", "dungeon",
-        "obby", "parkour", "maze", "labirinto",
-        "puzzle game", "tower defense", "tycoon",
-        "minecraft", "geometry dash", "sonic",
-        "mario", "pokemon", "fnaf", "five nights",
-        "flappy bird", "among us", "undertale"
-      ];
-
-      const nonGameWords = [
-        "animation only", "only animation",
-        "music video", "speedpaint",
-        "tutorial", "how to draw",
-        "my art", "desenho", "drawing",
-        "slideshow", "presentation",
-        "intro animation", " meme animation"
-      ];
-
-      let score = 0;
-
-      for (const word of gameWords) {
-        if (content.includes(word)) score++;
+    // Carregar os jogos na página
+    function renderGames(gameList) {
+      gamesGrid.innerHTML = '';
+      if(gameList.length === 0) {
+        gamesGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-dim);">Nenhum jogo encontrado.</p>';
+        return;
       }
 
-      for (const word of nonGameWords) {
-        if (content.includes(word)) score -= 2;
-      }
-
-      const controlWords = [
-        "arrow keys", "setas", "wasd",
-        "press space", "press enter",
-        "use the arrow", "use arrows",
-        "use the mouse", "use mouse",
-        "controles", "controls"
-      ];
-
-      for (const word of controlWords) {
-        if (instructions.includes(word)) score += 2;
-      }
-
-      return score > 0;
+      gameList.forEach(game => {
+        const card = document.createElement('div');
+        card.className = 'game-card';
+        card.onclick = () => openGame(game.id, game.title);
+        card.innerHTML = `
+          <img src="${game.image}" alt="${game.title}" onerror="this.src='https://scratch.mit.edu/images/scratch-og.png'">
+          <div class="game-info">
+            <h3>${game.title}</h3>
+            <p>${game.description}</p>
+            <button class="btn-play">Jogar Agora</button>
+          </div>
+        `;
+        gamesGrid.appendChild(card);
+      });
     }
 
-    function filterGames(projects, directId = false) {
-      if (directId) return projects;
-
-      return projects.filter(isGameProject);
-    }
-
-    /* ==========================================
-       COMUNICAÇÃO COM A API DO SCRATCH
-    ========================================== */
-
-    async function fetchScratch(url, requestId) {
-      const controller = new AbortController();
-
-      const timeout = setTimeout(
-        () => controller.abort(),
-        CONFIG.requestTimeout
+    // Filtrar jogos pela pesquisa
+    function filterGames() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = games.filter(game => 
+        game.title.toLowerCase().includes(query) || 
+        game.description.toLowerCase().includes(query)
       );
-
-      try {
-        const response = await fetch(url, {
-          method: "GET",
-          headers: {
-            "Accept": "application/json"
-          },
-          signal: controller.signal
-        });
-
-        if (requestId !== state.requestNumber) {
-          throw new Error("Pesquisa substituída.");
-        }
-
-        if (!response.ok) {
-          throw new Error(`Scratch respondeu com erro ${response.status}.`);
-        }
-
-        return await response.json();
-
-      } finally {
-        clearTimeout(timeout);
-      }
+      renderGames(filtered);
     }
 
-    async function searchByName(query, mode, offset, requestId) {
-      const params = new URLSearchParams({
-        q: query,
-        limit: String(CONFIG.limit),
-        offset: String(offset),
-        mode: mode
-      });
-
-      const url = `${CONFIG.api}/search/projects?${params.toString()}`;
-
-      const data = await fetchScratch(url, requestId);
-
-      if (!Array.isArray(data)) {
-        throw new Error("A resposta da pesquisa não é válida.");
-      }
-
-      return data;
+    // Abrir o Modal com o Jogo embutido
+    function openGame(id, title) {
+      modalTitle.innerText = title;
+      // Usando o player oficial embed do Scratch
+      scratchPlayer.src = `https://scratch.mit.edu/projects/${id}/embed`;
+      modal.style.display = 'flex';
     }
 
-    async function searchById(id, requestId) {
-      const url = `${CONFIG.api}/projects/${encodeURIComponent(id)}`;
-
-      const project = await fetchScratch(url, requestId);
-
-      if (!project || !project.id) {
-        throw new Error("Projeto não encontrado.");
-      }
-
-      return [project];
+    // Fechar o Modal
+    function closeGame() {
+      modal.style.display = 'none';
+      scratchPlayer.src = ''; // Interrompe o áudio/execução do jogo ao fechar
     }
 
-    /* ==========================================
-       CRIAÇÃO DOS CARTÕES
-    ========================================== */
-
-    function createGameCard(project) {
-      const card = document.createElement("article");
-      card.className = "game-card";
-
-      const imageContainer = document.createElement("div");
-      imageContainer.className = "game-image-container";
-
-      const image = document.createElement("img");
-      image.className = "game-image";
-      image.alt = project.title || "Capa do jogo";
-      image.loading = "lazy";
-      image.decoding = "async";
-
-      image.src =
-        `https://uploads.scratch.mit.edu/get_image/project/${project.id}_480x360.png`;
-
-      image.onerror = function () {
-        this.onerror = null;
-
-        const placeholder = document.createElement("div");
-        placeholder.className = "game-image-placeholder";
-        placeholder.textContent = "🎮";
-
-        imageContainer.replaceChildren(placeholder);
-      };
-
-      imageContainer.appendChild(image);
-
-      const info = document.createElement("div");
-      info.className = "game-info";
-
-      const title = document.createElement("h3");
-      title.className = "game-title";
-      title.textContent = project.title || "Jogo sem título";
-
-      const author = document.createElement("p");
-      author.className = "game-author";
-
-      author.textContent =
-        "Criado por: " +
-        (project.author?.username || "Criador desconhecido");
-
-      const stats = document.createElement("div");
-      stats.className = "game-stats";
-
-      const views = document.createElement("span");
-      views.textContent =
-        `👁 ${formatNumber(project.stats?.views)}`;
-
-      const loves = document.createElement("span");
-      loves.textContent =
-        `❤️ ${formatNumber(project.stats?.loves)}`;
-
-      const favorites = document.createElement("span");
-      favorites.textContent =
-        `⭐ ${formatNumber(project.stats?.favorites)}`;
-
-      stats.append(views, loves, favorites);
-
-      const link = document.createElement("a");
-      link.className = "game-link";
-      link.href = `https://scratch.mit.edu/projects/${project.id}/`;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.textContent = "ABRIR JOGO ↗";
-
-      info.append(title, author, stats, link);
-
-      card.append(imageContainer, info);
-
-      return card;
-    }
-
-    /* ==========================================
-       ORDENAÇÃO DOS RESULTADOS
-    ========================================== */
-
-    function sortProjects(projects) {
-      const sorted = [...projects];
-
-      if (state.mode === "views") {
-        sorted.sort((a, b) =>
-          (b.stats?.views || 0) - (a.stats?.views || 0)
-        );
+    // Fechar ao clicar fora do conteúdo
+    window.onclick = function(event) {
+      if (event.target === modal) {
+        closeGame();
       }
+    };
 
-      if (state.mode === "popular") {
-        sorted.sort((a, b) =>
-          (b.stats?.loves || 0) - (a.stats?.loves || 0)
-        );
-      }
-
-      if (state.mode === "recent") {
-        sorted.sort((a, b) =>
-          new Date(b.history?.created || 0) -
-          new Date(a.history?.created || 0)
-        );
-      }
-
-      return sorted;
-    }
-
-    /* ==========================================
-       RENDERIZAÇÃO
-    ========================================== */
-
-    function renderProjects(append = false) {
-      if (!append) {
-        elements.games.innerHTML = "";
-      }
-
-      const projects = sortProjects(state.projects);
-
-      if (projects.length === 0) {
-        showState(
-          "🔎",
-          "Nenhum jogo encontrado",
-          "Tente outro nome ou escolha uma categoria diferente."
-        );
-        return;
-      }
-
-      projects.forEach(project => {
-        elements.games.appendChild(createGameCard(project));
-      });
-
-      elements.count.textContent =
-        `${projects.length} jogo(s) encontrado(s).`;
-
-      elements.loadContainer.style.display =
-        state.hasMore ? "flex" : "none";
-    }
-
-    /* ==========================================
-       PESQUISA PRINCIPAL
-    ========================================== */
-
-    async function searchGames(options = {}) {
-      const query = elements.input.value.trim();
-
-      if (!query) {
-        elements.input.focus();
-        return;
-      }
-
-      const append = options.append === true;
-      const requestId = append
-        ? state.requestNumber
-        : ++state.requestNumber;
-
-      if (state.loading) {
-        if (append) return;
-      }
-
-      if (!append) {
-        state.query = query;
-        state.offset = 0;
-        state.projects = [];
-        state.hasMore = false;
-
-        elements.title.textContent = `Resultados para "${query}"`;
-        elements.loadContainer.style.display = "none";
-
-        showState(
-          "🌌",
-          "Explorando o universo Scratch...",
-          "Estamos procurando jogos para você."
-        );
-      }
-
-      setLoading(true);
-
-      try {
-        let results;
-        const isNumericId = /^\d+$/.test(query);
-
-        if (isNumericId && !append) {
-          results = await searchById(query, requestId);
-
-          if (requestId !== state.requestNumber) return;
-
-          state.projects = results;
-          state.hasMore = false;
-
-        } else {
-          const mode = state.mode === "views"
-            ? "popular"
-            : state.mode;
-
-          results = await searchByName(
-            query,
-            mode,
-            state.offset,
-            requestId
-          );
-
-          if (requestId !== state.requestNumber) return;
-
-          const games = filterGames(results);
-
-          const existingIds = new Set(
-            state.projects.map(project => String(project.id))
-          );
-
-          const newGames = games.filter(project =>
-            !existingIds.has(String(project.id))
-          );
-
-          state.projects = append
-            ? [...state.projects, ...newGames]
-            : newGames;
-
-          state.offset += CONFIG.limit;
-
-          state.hasMore =
-            results.length === CONFIG.limit &&
-            state.offset < CONFIG.limit * CONFIG.maxPages;
-        }
-
-        renderProjects();
-
-      } catch (error) {
-        if (requestId !== state.requestNumber) return;
-
-        console.error("Scratch Universe:", error);
-
-        showState(
-          "⚠️",
-          "Não conseguimos carregar os jogos",
-          "Verifique sua conexão e tente novamente. O serviço do Scratch pode estar temporariamente indisponível."
-        );
-
-        elements.count.textContent = "Falha na pesquisa.";
-
-      } finally {
-        if (requestId === state.requestNumber) {
-          setLoading(false);
-        }
-      }
-    }
-
-    /* ==========================================
-       EVENTOS DA PÁGINA
-    ========================================== */
-
-    elements.form.addEventListener("submit", event => {
-      event.preventDefault();
-      searchGames();
-    });
-
-    elements.categories.addEventListener("click", event => {
-      const button = event.target.closest(".category");
-
-      if (!button) return;
-
-      document.querySelectorAll(".category").forEach(item => {
-        item.classList.remove("active");
-      });
-
-      button.classList.add("active");
-
-      const query = button.dataset.query;
-
-      elements.input.value = query;
-
-      searchGames();
-    });
-
-    elements.sort.addEventListener("change", () => {
-      state.mode = elements.sort.value;
-
-      if (state.query) {
-        elements.input.value = state.query;
-        searchGames();
-      }
-    });
-
-    elements.loadButton.addEventListener("click", async () => {
-      if (state.loading || !state.hasMore) return;
-
-      const requestId = state.requestNumber;
-
-      setLoading(true);
-
-      try {
-        const mode = state.mode === "views"
-          ? "popular"
-          : state.mode;
-
-        const results = await searchByName(
-          state.query,
-          mode,
-          state.offset,
-          requestId
-        );
-
-        if (requestId !== state.requestNumber) return;
-
-        const games = filterGames(results);
-
-        const existingIds = new Set(
-          state.projects.map(project => String(project.id))
-        );
-
-        const newGames = games.filter(project =>
-          !existingIds.has(String(project.id))
-        );
-
-        state.projects = [...state.projects, ...newGames];
-        state.offset += CONFIG.limit;
-
-        state.hasMore =
-          results.length === CONFIG.limit &&
-          state.offset < CONFIG.limit * CONFIG.maxPages;
-
-        renderProjects();
-
-      } catch (error) {
-        console.error("Erro ao carregar mais:", error);
-        elements.count.textContent =
-          "Não foi possível carregar mais jogos.";
-
-      } finally {
-        if (requestId === state.requestNumber) {
-          setLoading(false);
-        }
-      }
-    });
-
-    /* ==========================================
-       INICIALIZAÇÃO
-    ========================================== */
-
-    console.log("Scratch Universe iniciado com sucesso.");
+    // Inicializa a renderização
+    renderGames(games);
   </script>
-
 </body>
 </html>
-8
