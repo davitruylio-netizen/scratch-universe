@@ -422,41 +422,142 @@ footer {
   SCRATCH UNIVERSE © 2026 — Criado para conectar mundos.
 </footer>
 
+
 <script>
+const API = "https://trampoline.turbowarp.org/api";
+
 let currentCategory = "todos";
 
-function updateGames() {
-  const query = document.getElementById("searchInput")
-    .value.toLowerCase().trim();
+async function getScratchData(path) {
+  const response = await fetch(API + path);
 
-  const cards = document.querySelectorAll(".game-card");
-  let visible = 0;
+  if (!response.ok) {
+    throw new Error("Não foi possível consultar o Scratch.");
+  }
 
-  cards.forEach(card => {
-    const name = card.dataset.name;
-    const category = card.dataset.category;
-
-    const matchesName = name.includes(query);
-    const matchesCategory =
-      currentCategory === "todos" ||
-      category === currentCategory;
-
-    const show = matchesName && matchesCategory;
-
-    card.style.display = show ? "block" : "none";
-
-    if (show) visible++;
-  });
-
-  document.getElementById("empty").style.display =
-    visible === 0 ? "block" : "none";
+  return await response.json();
 }
 
-function searchGames() {
-  updateGames();
-  document.getElementById("jogos").scrollIntoView({
-    behavior: "smooth"
+function createGameCard(project) {
+  const card = document.createElement("article");
+  card.className = "game-card";
+  card.dataset.category = "todos";
+  card.dataset.name = (project.title || "").toLowerCase();
+
+  const cover = document.createElement("img");
+  cover.src = `https://uploads.scratch.mit.edu/get_image/project/${project.id}_480x360.png`;
+  cover.alt = project.title || "Capa do jogo";
+  cover.style.cssText =
+    "width:100%;height:155px;object-fit:cover;display:block;";
+  cover.onerror = () => {
+    cover.alt = "Capa indisponível";
+  };
+
+  const info = document.createElement("div");
+  info.className = "card-info";
+
+  const title = document.createElement("h3");
+  title.textContent = project.title || "Jogo sem título";
+
+  const author = document.createElement("p");
+  author.textContent =
+    "Criador: " + (project.author?.username || "Desconhecido");
+
+  const stats = document.createElement("p");
+  stats.textContent =
+    `❤️ ${project.stats?.loves || 0}  |  👁️ ${project.stats?.views || 0}`;
+
+  const button = document.createElement("button");
+  button.className = "game-button";
+  button.textContent = "JOGAR AGORA";
+  button.disabled = false;
+  button.style.cursor = "pointer";
+
+  button.onclick = () => {
+    window.open(
+      `https://scratch.mit.edu/projects/${project.id}/`,
+      "_blank",
+      "noopener"
+    );
+  };
+
+  info.append(title, author, stats, button);
+  card.append(cover, info);
+
+  return card;
+}
+
+async function searchGames() {
+  const input = document.getElementById("searchInput");
+  const query = input.value.trim();
+  const container = document.getElementById("games");
+  const empty = document.getElementById("empty");
+
+  if (!query) {
+    input.focus();
+    return;
+  }
+
+  container.innerHTML = `
+    <p style="color:#78d9ff">
+      🌌 Explorando o universo Scratch...
+    </p>
+  `;
+
+  empty.style.display = "none";
+
+  currentCategory = "todos";
+
+  document.querySelectorAll(".category").forEach(item => {
+    item.classList.remove("active");
   });
+
+  document.querySelector(".category").classList.add("active");
+
+  try {
+    let projects;
+
+    if (/^\d+$/.test(query)) {
+      const project = await getScratchData(
+        `/projects/${query}`
+      );
+
+      projects = [project];
+    } else {
+      const params = new URLSearchParams({
+        q: query,
+        limit: "20",
+        offset: "0",
+        mode: "popular",
+        language: "pt"
+      });
+
+      projects = await getScratchData(
+        `/search/projects?${params.toString()}`
+      );
+    }
+
+    container.innerHTML = "";
+
+    if (!Array.isArray(projects) || projects.length === 0) {
+      empty.style.display = "block";
+      return;
+    }
+
+    projects.forEach(project => {
+      container.appendChild(createGameCard(project));
+    });
+
+  } catch (error) {
+    console.error(error);
+    container.innerHTML = "";
+
+    empty.style.display = "block";
+    empty.querySelector("h2").textContent =
+      "Não conseguimos encontrar os jogos";
+    empty.querySelector("p").textContent =
+      "Tente novamente em alguns instantes ou confira o ID.";
+  }
 }
 
 function filterGames(category, button) {
@@ -467,12 +568,32 @@ function filterGames(category, button) {
   });
 
   button.classList.add("active");
-  updateGames();
+
+  const cards = document.querySelectorAll(".game-card");
+  let visible = 0;
+
+  cards.forEach(card => {
+    const matches =
+      category === "todos" ||
+      card.dataset.category === category;
+
+    card.style.display = matches ? "block" : "none";
+
+    if (matches) visible++;
+  });
+
+  document.getElementById("empty").style.display =
+    visible === 0 ? "block" : "none";
 }
 
 document.getElementById("searchInput")
-  .addEventListener("input", updateGames);
+  .addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+      searchGames();
+    }
+  });
 </script>
+
 
 </body>
 </html>
