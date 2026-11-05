@@ -3,217 +3,686 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Criador de Jogos em Blocos</title>
+  <title>OmniAI - MultiModal & Game Studio</title>
   
-  <!-- Biblioteca Google Blockly via CDN -->
-  <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+  <!-- Font Awesome para Ícones -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-  <!-- CSS (Estilo Visual) -->
   <style>
+    :root {
+      --bg-main: #0f172a;
+      --bg-side: #1e293b;
+      --bg-card: #334155;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #475569;
+      --user-msg: #3b82f6;
+      --ai-msg: #1e293b;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
 
     body {
       display: flex;
-      flex-direction: column;
       height: 100vh;
-      background-color: #1e1e2e;
-      color: #fff;
+      background-color: var(--bg-main);
+      color: var(--text);
+      overflow: hidden;
     }
 
-    header {
+    /* Sidebar Sidebar Left */
+    aside {
+      width: 280px;
+      background-color: var(--bg-side);
+      border-right: 1px solid var(--border);
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 24px;
-      background-color: #181825;
-      border-bottom: 1px solid #313244;
+      flex-direction: column;
+      padding: 16px;
+      gap: 16px;
     }
 
-    header button {
-      background-color: #a6e3a1;
-      color: #11111b;
-      border: none;
-      padding: 10px 20px;
-      font-size: 16px;
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
       font-weight: bold;
+      color: var(--accent);
+    }
+
+    .btn-new-chat {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 12px;
       border-radius: 8px;
       cursor: pointer;
-      transition: background-color 0.2s;
-    }
-
-    header button:hover {
-      background-color: #94e2d5;
-    }
-
-    .container {
+      font-weight: 600;
       display: flex;
-      flex: 1;
-      height: calc(100vh - 60px);
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.2s;
     }
 
-    #blocklyDiv {
+    .btn-new-chat:hover {
+      background: var(--accent-hover);
+    }
+
+    .history-list {
       flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .history-item {
+      padding: 10px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      cursor: pointer;
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .history-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Main Content Area */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* Header Nav Tabs */
+    header {
+      height: 60px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      background-color: var(--bg-side);
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 12px;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-btn.active {
+      background: var(--bg-card);
+      color: var(--text);
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #10b981;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    /* Container Views */
+    .view-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .view-panel {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+    }
+
+    .view-panel.active {
+      display: flex;
+    }
+
+    /* Chat View */
+    .chat-messages {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .message {
+      display: flex;
+      gap: 16px;
+      max-width: 80%;
+      padding: 14px 18px;
+      border-radius: 12px;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background-color: var(--user-msg);
+      border-bottom-right-radius: 2px;
+    }
+
+    .message.ai {
+      align-self: flex-start;
+      background-color: var(--ai-msg);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 2px;
+    }
+
+    .message img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    /* Chat Input Bar */
+    .chat-input-area {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      background-color: var(--bg-side);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .input-wrapper {
+      flex: 1;
+      position: relative;
+    }
+
+    .chat-input-area input {
+      width: 100%;
+      background: var(--bg-main);
+      border: 1px solid var(--border);
+      padding: 14px 16px;
+      padding-right: 45px;
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+    }
+
+    .chat-input-area input:focus {
+      border-color: var(--accent);
+    }
+
+    .btn-send {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 14px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    /* Game View Panel */
+    .game-view {
+      display: flex;
       height: 100%;
     }
 
-    .game-area {
-      width: 440px;
-      background-color: #181825;
+    .game-canvas-area {
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px;
-      border-left: 2px solid #313244;
+      justify-content: center;
+      background-color: #000;
+      position: relative;
     }
 
-    .game-area h2 {
-      margin-bottom: 15px;
-      font-size: 18px;
-      color: #cdd6f4;
-    }
-
-    canvas {
-      background-color: #ffffff;
+    #aiGameCanvas {
+      background: #111;
       border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 0 20px rgba(0,0,0,0.8);
+    }
+
+    .game-sidebar {
+      width: 320px;
+      background: var(--bg-side);
+      border-left: 1px solid var(--border);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .code-preview {
+      flex: 1;
+      background: var(--bg-main);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 12px;
+      color: #38bdf8;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+
+    /* Gallery / Image Generator View */
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .image-card {
+      background: var(--bg-card);
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .image-card img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+    }
+
+    .image-card p {
+      padding: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>🎮 Criador de Jogos em Blocos</h1>
-    <button id="runBtn">▶ Executar Jogo</button>
-  </header>
+  <!-- Sidebar Lateral -->
+  <aside>
+    <div class="brand">
+      <i class="fa-solid fa-brain"></i> OmniAI Studio
+    </div>
+    <button class="btn-new-chat" id="newChatBtn">
+      <i class="fa-solid fa-plus"></i> Novo Chat
+    </button>
+    <div class="history-list" id="historyList">
+      <!-- Histórico gerado via JS -->
+    </div>
+  </aside>
 
-  <main class="container">
-    <!-- Área dos Blocos -->
-    <div id="blocklyDiv"></div>
+  <!-- Painel Principal -->
+  <main>
+    <header>
+      <div class="nav-tabs">
+        <button class="tab-btn active" data-tab="chatView">
+          <i class="fa-solid fa-comments"></i> Chat & IA
+        </button>
+        <button class="tab-btn" data-tab="gameView">
+          <i class="fa-solid fa-gamepad"></i> Jogo Gerado
+        </button>
+        <button class="tab-btn" data-tab="galleryView">
+          <i class="fa-solid fa-image"></i> Galeria de Imagens
+        </button>
+      </div>
+      <div class="status-badge">
+        <div class="status-dot"></div> Modelo Conectado
+      </div>
+    </header>
 
-    <!-- Tela do Jogo -->
-    <div class="game-area">
-      <h2>Tela do Jogo</h2>
-      <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <div class="view-container">
+      
+      <!-- 1. ABA CHAT -->
+      <div class="view-panel active" id="chatView">
+        <div class="chat-messages" id="chatMessages">
+          <div class="message ai">
+            Olá! Sou a OmniAI. Posso conversar com você, gerar imagens instantâneas ou criar jogos 2D em tempo real. O que vamos criar hoje?
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <div class="input-wrapper">
+            <input type="text" id="userInput" placeholder="Digite uma mensagem, peça uma imagem ('gerar imagem de...') ou jogo ('criar jogo de...')..." />
+          </div>
+          <button class="btn-send" id="sendBtn">
+            <i class="fa-solid fa-paper-plane"></i> Enviar
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. ABA JOGO (CANVAS & CÓDIGO) -->
+      <div class="view-panel" id="gameView">
+        <div class="game-view">
+          <div class="game-canvas-area">
+            <canvas id="aiGameCanvas" width="600" height="400"></canvas>
+          </div>
+          <div class="game-sidebar">
+            <h3>Código do Jogo Gerado</h3>
+            <div class="code-preview" id="codePreview">// Aguardando geração de código de jogo...</div>
+            <button class="btn-new-chat" id="restartGameBtn">
+              <i class="fa-solid fa-rotate-right"></i> Reiniciar Jogo
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. ABA GALERIA DE IMAGENS -->
+      <div class="view-panel" id="galleryView">
+        <div class="image-grid" id="imageGrid">
+          <!-- Imagens salvas entram aqui -->
+        </div>
+      </div>
+
     </div>
   </main>
 
-  <!-- Caixa de Ferramentas dos Blocos -->
-  <xml id="toolbox" style="display: none">
-    <category name="Eventos" colour="#FFBF00">
-      <block type="when_start"></block>
-    </category>
-    <category name="Movimento" colour="#4C97FF">
-      <block type="move_player"></block>
-    </category>
-    <category name="Aparência" colour="#9966FF">
-      <block type="set_color"></block>
-    </category>
-  </xml>
-
-  <!-- JavaScript (Lógica da Linguagem e do Jogo) -->
   <script>
-    // 1. Inicializar o Blockly na tela
-    const workspace = Blockly.inject('blocklyDiv', {
-      toolbox: document.getElementById('toolbox'),
-      scrollbars: true,
-      trashcan: true
+    // --- ESTADO GLOBAL DA IA E APLICAÇÃO ---
+    const state = {
+      currentTab: 'chatView',
+      messages: [],
+      generatedImages: [],
+      currentGameLoop: null,
+      gameScript: null
+    };
+
+    // DOM Elements
+    const chatMessages = document.getElementById('chatMessages');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const viewPanels = document.querySelectorAll('.view-panel');
+    const imageGrid = document.getElementById('imageGrid');
+    const gameCanvas = document.getElementById('aiGameCanvas');
+    const ctx = gameCanvas.getContext('2d');
+    const codePreview = document.getElementById('codePreview');
+
+    // --- TROCA DE ABAS ---
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        viewPanels.forEach(p => p.classList.remove('active'));
+        
+        btn.classList.add('active');
+        const targetTab = btn.getAttribute('data-tab');
+        document.getElementById(targetTab).classList.add('active');
+        state.currentTab = targetTab;
+      });
     });
 
-    // 2. Configurar o Canvas do Jogo
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    let player = { x: 180, y: 180, size: 40, color: '#ff0000' };
-
-    function drawPlayer() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = player.color;
-      ctx.fillRect(player.x, player.y, player.size, player.size);
-    }
-    drawPlayer();
-
-    // 3. Definir os Blocos Customizados da nossa Linguagem
-
-    // Bloco: Quando Clicar em Rodar
-    Blockly.Blocks['when_start'] = {
-      init: function() {
-        this.appendDummyInput().appendField("🏁 Quando Clicar em Rodar");
-        this.setNextStatement(true, null);
-        this.setColour(45);
+    // --- ADICIONAR MENSAGENS AO CHAT ---
+    function appendMessage(sender, text, imageUrl = null) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `message ${sender}`;
+      
+      let htmlContent = `<div>${text}</div>`;
+      if (imageUrl) {
+        htmlContent += `<img src="${imageUrl}" alt="Imagem Gerada pela IA" />`;
       }
-    };
-    javascript.javascriptGenerator.forBlock['when_start'] = function(block) {
-      return '// Inicio\n';
-    };
 
-    // Bloco: Mover Jogador
-    Blockly.Blocks['move_player'] = {
-      init: function() {
-        this.appendDummyInput()
-            .appendField("Mover")
-            .appendField(new Blockly.FieldDropdown([
-              ["➡️ Direita", "RIGHT"],
-              ["⬅️ Esquerda", "LEFT"],
-              ["⬆️ Cima", "UP"],
-              ["⬇️ Baixo", "DOWN"]
-            ]), "DIR")
-            .appendField("em")
-            .appendField(new Blockly.FieldNumber(30), "STEPS")
-            .appendField("pixels");
-        this.setPreviousStatement(true, null);
-        this.setNextStatement(true, null);
-        this.setColour(210);
-      }
-    };
-    javascript.javascriptGenerator.forBlock['move_player'] = function(block) {
-      const dir = block.getFieldValue('DIR');
-      const steps = block.getFieldValue('STEPS');
-      return `movePlayer("${dir}", ${steps});\n`;
-    };
+      msgDiv.innerHTML = htmlContent;
+      chatMessages.appendChild(msgDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
 
-    // Bloco: Mudar Cor
-    Blockly.Blocks['set_color'] = {
-      init: function() {
-        this.appendDummyInput()
-            .appendField("Mudar cor do bloco para")
-            .appendField(new Blockly.FieldColour("#0000ff"), "COLOR");
-        this.setPreviousStatement(true, null);
-        this.setNextStatement(true, null);
-        this.setColour(270);
-      }
-    };
-    javascript.javascriptGenerator.forBlock['set_color'] = function(block) {
-      const color = block.getFieldValue('COLOR');
-      return `player.color = "${color}"; drawPlayer();\n`;
-    };
-
-    // 4. Execução dos Comandos
-    function movePlayer(direction, steps) {
-      if (direction === 'RIGHT') player.x = Math.min(canvas.width - player.size, player.x + steps);
-      if (direction === 'LEFT') player.x = Math.max(0, player.x - steps);
-      if (direction === 'UP') player.y = Math.max(0, player.y - steps);
-      if (direction === 'DOWN') player.y = Math.min(canvas.height - player.size, player.y + steps);
-      drawPlayer();
+      state.messages.push({ sender, text, imageUrl });
     }
 
-    document.getElementById('runBtn').addEventListener('click', () => {
-      // Reseta a posição inicial ao rodar
-      player.x = 180;
-      player.y = 180;
-      drawPlayer();
+    // --- MOTOR DE PROCESSAMENTO DA IA (IA MULTIMODAL SIMULADA) ---
+    function processAIRequest(prompt) {
+      const lower = prompt.toLowerCase();
 
-      // Transforma blocos visuais em código e executa
-      const code = javascript.javascriptGenerator.workspaceToCode(workspace);
+      // 1. COMANDO DE GERAR IMAGEM
+      if (lower.includes('gerar imagem') || lower.includes('desenhe') || lower.includes('imagem de')) {
+        const cleanPrompt = prompt.replace(/(gerar imagem de|desenhe|imagem de)/gi, '').trim();
+        appendMessage('ai', `Gerando imagem para: "${cleanPrompt}"...`);
+
+        // Utiliza API dinâmica de geração de imagens baseada em prompts
+        const encodedPrompt = encodeURIComponent(cleanPrompt || 'futuristic city neon cyber fantasy');
+        const imgUrl = `https://pollinations.ai/p/${encodedPrompt}?width=800&height=600&seed=${Math.floor(Math.random() * 1000)}`;
+
+        setTimeout(() => {
+          appendMessage('ai', `Aqui está a sua imagem gerada:`, imgUrl);
+          
+          // Adiciona à galeria
+          state.generatedImages.push({ prompt: cleanPrompt, url: imgUrl });
+          renderGallery();
+        }, 1500);
+
+      } 
+      // 2. COMANDO DE CRIAR JOGO
+      else if (lower.includes('criar jogo') || lower.includes('jogo de') || lower.includes('game')) {
+        appendMessage('ai', 'Criando e compilando a lógica do jogo 2D em HTML/Canvas...');
+
+        setTimeout(() => {
+          let gameCode = "";
+
+          // Se pedir jogo de nave
+          if (lower.includes('nave') || lower.includes('espaco') || lower.includes('tiro')) {
+            gameCode = generateSpaceGameCode();
+          } 
+          // Se pedir jogo de pular/plataforma ou padrão (Pong/Snake/Clicker)
+          else {
+            gameCode = generateBouncingBallGameCode();
+          }
+
+          state.gameScript = gameCode;
+          codePreview.textContent = gameCode;
+          
+          // Troca automaticamente para a aba do jogo e roda
+          document.querySelector('[data-tab="gameView"]').click();
+          runAIGame(gameCode);
+
+          appendMessage('ai', 'Jogo gerado com sucesso! Mudei para a aba "Jogo Gerado" para você jogar.');
+        }, 1200);
+
+      } 
+      // 3. CONVERSA CONVENCIONAL
+      else {
+        setTimeout(() => {
+          const responses = [
+            "Compreendo perfeitamente. Como posso avançar nisso para você?",
+            "Interessante! Posso transformar essa ideia em um script de jogo 2D ou gerar uma ilustração visual.",
+            "Estou configurado para criar código, sintetizar visuais e processar lógica complexa.",
+            "Isso soa excelente. Se quiser ver isso em ação, me peça para 'gerar uma imagem' ou 'criar um jogo'."
+          ];
+          const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+          appendMessage('ai', randomResponse);
+        }, 800);
+      }
+    }
+
+    // --- ENVIAR MENSAGEM DO USUÁRIO ---
+    function handleSend() {
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      appendMessage('user', text);
+      userInput.value = '';
+
+      processAIRequest(text);
+    }
+
+    sendBtn.addEventListener('click', handleSend);
+    userInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleSend();
+    });
+
+    // --- RENDERIZAR GALERIA ---
+    function renderGallery() {
+      imageGrid.innerHTML = '';
+      state.generatedImages.forEach(img => {
+        const card = document.createElement('div');
+        card.className = 'image-card';
+        card.innerHTML = `<img src="${img.url}"><p>${img.prompt}</p>`;
+        imageGrid.appendChild(card);
+      });
+    }
+
+    // --- EXECUTOR DE JOGOS GERADOS PELA IA ---
+    function runAIGame(codeString) {
+      if (state.currentGameLoop) {
+        cancelAnimationFrame(state.currentGameLoop);
+      }
       try {
-        eval(code);
-      } catch (e) {
-        console.error("Erro de execução:", e);
+        const gameFunction = new Function('canvas', 'ctx', 'state', codeString);
+        gameFunction(gameCanvas, ctx, state);
+      } catch (err) {
+        console.error("Erro na execução do jogo:", err);
       }
+    }
+
+    document.getElementById('restartGameBtn').addEventListener('click', () => {
+      if (state.gameScript) runAIGame(state.gameScript);
     });
+
+    // --- GERADORES DE CÓDIGO DE JOGO DINÂMICO ---
+    function generateBouncingBallGameCode() {
+      return `
+// Jogo 2D: Bouncing Paddle
+let x = canvas.width / 2;
+let y = canvas.height - 30;
+let dx = 3;
+let dy = -3;
+let ballRadius = 10;
+let paddleHeight = 12;
+let paddleWidth = 90;
+let paddleX = (canvas.width - paddleWidth) / 2;
+let rightPressed = false;
+let leftPressed = false;
+
+document.onkeydown = (e) => {
+  if(e.key === "Right" || e.key === "ArrowRight") rightPressed = true;
+  if(e.key === "Left" || e.key === "ArrowLeft") leftPressed = true;
+};
+document.onkeyup = (e) => {
+  if(e.key === "Right" || e.key === "ArrowRight") rightPressed = false;
+  if(e.key === "Left" || e.key === "ArrowLeft") leftPressed = false;
+};
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Bola
+  ctx.beginPath();
+  ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+  ctx.fillStyle = "#6366f1";
+  ctx.fill();
+  ctx.closePath();
+
+  // Raquete
+  ctx.beginPath();
+  ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+  ctx.fillStyle = "#10b981";
+  ctx.fill();
+  ctx.closePath();
+
+  // Colisão Paredes
+  if(x + dx > canvas.width - ballRadius || x + dx < ballRadius) dx = -dx;
+  if(y + dy < ballRadius) dy = -dy;
+  else if(y + dy > canvas.height - ballRadius) {
+    if(x > paddleX && x < paddleX + paddleWidth) {
+      dy = -dy;
+    } else {
+      x = canvas.width/2; y = canvas.height-30; dy = -3; // Reset
+    }
+  }
+
+  if(rightPressed && paddleX < canvas.width - paddleWidth) paddleX += 6;
+  if(leftPressed && paddleX > 0) paddleX -= 6;
+
+  x += dx;
+  y += dy;
+
+  state.currentGameLoop = requestAnimationFrame(draw);
+}
+draw();
+      `.trim();
+    }
+
+    function generateSpaceGameCode() {
+      return `
+// Jogo 2D: Space Shooter Simple
+let player = { x: 270, y: 350, w: 40, h: 20, speed: 5 };
+let bullets = [];
+let enemies = [];
+let keys = {};
+
+document.onkeydown = (e) => keys[e.code] = true;
+document.onkeyup = (e) => keys[e.code] = false;
+
+function spawnEnemy() {
+  if(Math.random() < 0.03) {
+    enemies.push({ x: Math.random() * (canvas.width - 30), y: 0, w: 30, h: 20 });
+  }
+}
+
+function update() {
+  if(keys['ArrowLeft'] && player.x > 0) player.x -= player.speed;
+  if(keys['ArrowRight'] && player.x < canvas.width - player.w) player.x += player.speed;
+  if(keys['Space']) {
+    bullets.push({ x: player.x + player.w/2 - 2, y: player.y, w: 4, h: 10 });
+    keys['Space'] = false;
+  }
+
+  bullets.forEach(b => b.y -= 7);
+  enemies.forEach(e => e.y += 2);
+
+  spawnEnemy();
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Player
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillRect(player.x, player.y, player.w, player.h);
+
+  // Bullets
+  ctx.fillStyle = '#f59e0b';
+  bullets.forEach(b => ctx.fillRect(b.x, b.y, b.w, b.h));
+
+  // Enemies
+  ctx.fillStyle = '#ef4444';
+  enemies.forEach(e => ctx.fillRect(e.x, e.y, e.w, e.h));
+
+  state.currentGameLoop = requestAnimationFrame(update);
+}
+update();
+      `.trim();
+    }
   </script>
 </body>
 </html>
